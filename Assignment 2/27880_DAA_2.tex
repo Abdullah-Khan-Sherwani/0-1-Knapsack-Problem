@@ -1,0 +1,156 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{array}
+
+\title{\textbf{CSE 317: Design and Analysis of Algorithms} \\ Homework 2}
+\author{Abdullah Khan Sherwani \\ ERP: 27880}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Question 1: Triangle Maximum Path Sum}
+
+\subsection*{Problem Statement}
+Consider a triangular array of integers with $n$ rows, where the $i$-th row contains exactly $i$ positive numbers. Starting from the top element, at each step from position $j$ in row $i$, we may move to position $j$ or $j+1$ in row $i+1$. The goal is to find a path from top to bottom that maximizes the sum of selected numbers.
+
+\subsection*{Dynamic Programming Formulation}
+
+\subsubsection*{Notation}
+Let $T[i][j]$ denote the value at position $j$ in row $i$ of the triangle, where $1 \le i \le n$ and $1 \le j \le i$.
+
+\subsubsection*{Subproblem Definition}
+Define $\text{dp}[i][j]$ as the \textbf{maximum path sum} starting from the top of the triangle $(T[1][1])$ and ending at position $j$ in row $i$.
+
+\subsubsection*{Base Case}
+\[
+    \text{dp}[1][1] = T[1][1]
+\]
+There is only one element in the first row, so the maximum sum to reach it is just its own value.
+
+\subsubsection*{Recurrence Relation}
+For row $i$ ($2 \le i \le n$) and position $j$ ($1 \le j \le i$):
+
+\[
+    \text{dp}[i][j] = T[i][j] + \begin{cases}
+        \text{dp}[i-1][1] & \text{if } j = 1 \\[6pt]
+        \text{dp}[i-1][j-1] & \text{if } j = i \\[6pt]
+        \max\!\big(\text{dp}[i-1][j-1],\; \text{dp}[i-1][j]\big) & \text{if } 1 < j < i
+    \end{cases}
+\]
+
+\textbf{Justification:} To arrive at position $j$ in row $i$, we must have come from position $j-1$ or position $j$ in row $i-1$ (since a parent at position $k$ can move to $k$ or $k+1$). Therefore:
+\begin{itemize}[nosep]
+    \item If $j = 1$: the only parent is position $1$ in row $i-1$.
+    \item If $j = i$: the only parent is position $j-1 = i-1$ in row $i-1$.
+    \item Otherwise: we take the maximum of the two possible parents.
+\end{itemize}
+
+\subsubsection*{Optimal Value}
+The answer is:
+\[
+    \text{Maximum Path Sum} = \max_{1 \le j \le n} \text{dp}[n][j]
+\]
+We scan the last row of the DP table and return the largest value.
+
+\subsection*{Algorithm}
+
+\begin{algorithm}[H]
+\caption{\textsc{TriangleMaxPathSum}$(T, n)$}
+\begin{algorithmic}[1]
+\Require Triangle $T[1..n][1..i]$ and number of rows $n$
+\Ensure Maximum path sum from top to bottom
+\State $\text{dp}[1][1] \gets T[1][1]$
+\For{$i \gets 2$ \textbf{to} $n$}
+    \For{$j \gets 1$ \textbf{to} $i$}
+        \If{$j = 1$}
+            \State $\text{dp}[i][j] \gets T[i][j] + \text{dp}[i-1][1]$
+        \ElsIf{$j = i$}
+            \State $\text{dp}[i][j] \gets T[i][j] + \text{dp}[i-1][j-1]$
+        \Else
+            \State $\text{dp}[i][j] \gets T[i][j] + \max(\text{dp}[i-1][j-1],\; \text{dp}[i-1][j])$
+        \EndIf
+    \EndFor
+\EndFor
+\State \Return $\max_{1 \le j \le n} \text{dp}[n][j]$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection*{Complexity Analysis}
+
+The algorithm has \textbf{time complexity} $O(n^2)$ since it fills an $n \times n$ triangular DP table with constant-time operations per cell. The \textbf{space complexity} is $O(n^2)$ for storing the DP table, though it can be optimized to $O(n)$ by using only two rows at a time since each row depends only on the previous row.
+
+\newpage
+
+\section*{Question 2: Coin Change Problem}
+
+\subsection*{Problem Statement}
+Given a set of coin denominations $C = \{c_0, c_1, \ldots, c_{n-1}\}$ where each $c_i$ is a positive integer, and assuming each coin denomination can be used an unlimited number of times, determine the minimum number of coins required to make a target value $V$ exactly. If no combination of coins can form the target value $V$, report that no solution exists.
+
+\subsection*{Dynamic Programming Formulation}
+
+\subsubsection*{Notation}
+Let $C[i]$ denote the value of the $i$-th coin denomination (0-indexed), where $0 \le i < n$.
+
+\subsubsection*{Subproblem Definition}
+Define $\text{dp}[v]$ as the \textbf{minimum number of coins} required to make the value $v$, for $0 \le v \le V$.
+
+\subsubsection*{Base Case}
+\[
+    \text{dp}[0] = 0
+\]
+No coins are needed to make a value of 0.
+
+\subsubsection*{Recurrence Relation}
+For each value $v$ where $1 \le v \le V$:
+
+\[
+    \text{dp}[v] = \begin{cases}
+        \infty & \text{if no coin denomination can form } v \\[6pt]
+        1 + \min_{i: C[i] \le v} \text{dp}[v - C[i]] & \text{otherwise}
+    \end{cases}
+\]
+
+\textbf{Justification:} To form value $v$, we can use any coin $C[i]$ such that $C[i] \le v$, and then recursively form the remaining value $v - C[i]$. We choose the coin that results in the minimum total number of coins.
+
+\subsubsection*{Optimal Value}
+The answer is:
+\[
+    \text{Minimum Coins} = \begin{cases}
+        \text{dp}[V] & \text{if } \text{dp}[V] < \infty \\
+        \text{No solution exists} & \text{otherwise}
+    \end{cases}
+\]
+
+\subsection*{Algorithm}
+
+\begin{verbatim}
+def min_coins(C, V):
+    """
+    Find the minimum number of coins required to make value V.
+    """
+    # dp[v] = minimum coins needed to make value v
+    dp = [float('inf')] * (V + 1)
+    dp[0] = 0  # Base case: 0 coins for value 0
+
+    # Fill DP table for each value from 1 to V
+    for v in range(1, V + 1):
+        # Try using each coin denomination
+        for coin in C:
+            if coin <= v and dp[v - coin] != float('inf'):
+                dp[v] = min(dp[v], 1 + dp[v - coin])
+
+    # Return result
+    return dp[V] if dp[V] != float('inf') else -1
+\end{verbatim}
+
+\subsection*{Complexity Analysis}
+
+The algorithm has \textbf{time complexity} $O(V \cdot n)$ where $V$ is the target value and $n$ is the number of coin denominations. The outer loop iterates $V$ times, and for each value, we examine all $n$ coin denominations. The \textbf{space complexity} is $O(V)$ for storing the DP table that tracks the minimum coins needed for each value from 0 to $V$.
+
+\end{document}

@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(where chktex)",
+      "Bash(miktex packages install chktex)",
+      "Bash(miktex packages update)",
+      "Bash(code --list-extensions)",
+      "Bash(code --list-extensions --show-versions)",
+      "Bash(pdflatex -interaction=nonstopmode 27880_DAA_2.tex)",
+      "Bash(pdflatex 27880_DAA_2.tex)",
+      "Bash(pdflatex -interaction=nonstopmode -output-directory=\"/c/Users/abdul/OneDrive - Institute of Business Administration/Semester 6/DAA/Assignment 2\" \"/c/Users/abdul/OneDrive - Institute of Business Administration/Semester 6/DAA/Assignment 2/27880_DAA_2.tex\")",
+      "Bash(code --disable-extension mathematic.vscode-latex)",
+      "Bash(code --uninstall-extension mathematic.vscode-latex)",
+      "Bash(code --uninstall-extension james-yu.latex-workshop)",
+      "Bash(code --install-extension james-yu.latex-workshop)"
+    ]
+  }
+}

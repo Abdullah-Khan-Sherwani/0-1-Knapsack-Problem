@@ -1,0 +1,248 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{color}
+\lstset{
+  basicstyle=\ttfamily\small,
+  frame=single,
+  breaklines=true
+}
+\title{DAA Assignment 1}
+\author{Abdullah Khan Sherwani\\ERP: 27880}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Q1 (10 points)}
+Arrange the following functions according to their growth rates, i.e., a function $f$ stays before a function $g$ if $f = O(g)$. All logs are of base 2.
+
+\subsection*{Answer (Ascending Order)}
+\[
+\frac{1}{n^3},\quad 0.0003,\quad \log\log n,\quad \sqrt{n}\log n,\quad \frac{n}{\log n},\quad 10^{-6}n^7,\quad 2^{n^{2/3}},\quad 2^{n/\log n},\quad (\sqrt{n})^n,\quad n^n
+\]
+
+\paragraph{Remarks.} Functions that decay to $0$ (like $\frac{1}{n^3}$) are smallest, followed by constants and very slowly growing iterated logs. Sublinear functions such as $\sqrt{n}\log n$ and $\dfrac{n}{\log n}$ grow slower than high-degree polynomials like $n^7$. Exponential functions (e.g., $2^{n^{2/3}}$ and $2^{n/\log n}$) dominate polynomials, and super-exponential forms like $(\sqrt{n})^n = n^{n/2}$ and $n^n$ are the largest.
+
+\section*{Q2 (10 points)}
+Let $f$ and $g$ be two asymptotically positive functions such that $f(n) = O(g(n))$. For each of the following statements, decide whether it is true or false and give a proof or a counterexample.
+
+\subsection*{Answer}
+\begin{enumerate}
+  \item[(a)] \textbf{False.} Counterexample: Let $f(n)=2$ and $g(n)=1$. Then $f(n)=O(g(n))$ (take $C=2$, $n_0=1$), but $\log_a f(n)=\log_a 2$ and $\log_a g(n)=\log_a 1=0$, so $\log_a f(n)$ is not $O(\log_a g(n))$.
+  \item[(b)] \textbf{False.} Counterexample: Let $f(n)=n$ and $g(n)=2n$. Then $f(n)=O(g(n))$, but $2^{f(n)}=2^n$ and $2^{g(n)}=2^{2n}=4^n$, and $2^n$ is not $\Omega(4^n)$ (indeed $\lim_{n\to\infty}2^n/4^n=0$).
+  \item[(c)] \textbf{True.} Proof: Since $f(n)=O(g(n))$, there exist $C>0$ and $n_0$ such that $f(n)\le C g(n)$ for all $n\ge n_0$. Taking square roots (valid because $f,g>0$) gives $\sqrt{f(n)}\le\sqrt{C}\,\sqrt{g(n)}$, so $\sqrt{f(n)}=O(\sqrt{g(n)})$.
+\end{enumerate}
+
+\section*{Q3 (10 points)}
+Decide for each pair of functions whether $f = O(g)$, $f = \Omega(g)$, and $f = \Theta(g)$. The answers are shown in the table below.
+
+\begin{center}
+\begin{tabular}{c l l c c c}
+\hline
+Row & $f(n)$ & $g(n)$ & $f=O(g)$ & $f=\Omega(g)$ & $f=\Theta(g)$ \\
+\hline
+1 & $2n^3 + 3n$ & $100n^2 + 2n + 100$ & False & True & False \\
+2 & $50n + \log_2 n$ & $10n + \log_2\log_2 n$ & True & True & True \\
+3 & $50n \log_2 n$ & $(\log_2 n)^2$ & False & True & False \\
+4 & $n!$ & $5^n$ & False & True & False \\
+\hline
+\end{tabular}
+\end{center}
+
+\section*{Q4 (10 points)}
+Solve the following questions:
+\begin{enumerate}
+  \item[(a)] Is $2^n = \Theta(3^n)$?
+
+  \textbf{Answer:} No
+
+  \textbf{Reason:} For two functions to be $\Theta$ of each other, the limit of their ratio as $n\to\infty$ must be a non-zero constant.
+  \[
+  \lim_{n\to\infty} \frac{2^n}{3^n} = \lim_{n\to\infty} \left(\frac{2}{3}\right)^n = 0.
+  \]
+  Since the limit is $0$, $2^n$ grows strictly slower than $3^n$ (i.e., $2^n = o(3^n)$).
+
+  \item[(b)] Is $n! = \Theta(n^n)$?
+
+  \textbf{Answer:} No
+
+  \textbf{Reason:} While $n!$ grows very fast, it is strictly smaller than $n^n$:
+  \[
+  n! = 1\cdot 2\cdot \dots \cdot n,\qquad n^n = n\cdot n\cdot \dots \cdot n,
+  \]
+  so every term in $n!$ is at most $n$. Using Stirling's approximation,
+  \[
+  n! \approx \sqrt{2\pi n}\left(\frac{n}{e}\right)^n,
+  \]
+  hence
+  \[
+  \frac{n!}{n^n} \approx \sqrt{2\pi n}\left(\frac{1}{e}\right)^n \to 0,
+  \]
+  as $n\to\infty$.
+
+  \item[(c)] Is $2^{n^2} = \Theta(2^{n^3})$?
+
+  \textbf{Answer:} No
+
+  \textbf{Reason:} Consider the limit
+  \
+  \[
+  L = \lim_{n\to\infty} \frac{2^{n^2}}{2^{n^3}} = \lim_{n\to\infty} 2^{n^2 - n^3} = \lim_{n\to\infty} 2^{-n^2(n - 1)} = 0.
+  \]
+  Since $L=0$ (not a positive constant), $2^{n^2} = o(2^{n^3})$ and hence they are not $\Theta$ of each other.
+
+  \item[(d)] Is $\log(n!) = \Theta(n\log n)$?
+
+  \textbf{Answer:} Yes
+
+  \textbf{Reason:} Substituting $\log(n!)$ with Stirling's approximation $\ln(n!) \approx n\ln n - n$ (using natural logs; change of base is a constant), consider
+  \[
+  L = \lim_{n\to\infty} \frac{\log(n!)}{n\log n}.
+  \]
+
+  Substituting the approximation gives
+  \[
+  L = \lim_{n\to\infty} \frac{n\ln n - n}{n\ln n} = \lim_{n\to\infty} \left(1 - \frac{1}{\ln n}\right) = 1.
+  \]
+  Since $L=1$ is a positive constant, $\log(n!) = \Theta(n\log n)$.
+\end{enumerate}
+
+\section*{Q5 (10 points)}
+Let $A = \langle a_1, \dots, a_n \rangle$ be an array of $n$ distinct positive integers. An element $a_i$ ($1 \le i \le n$) is called a \emph{peak element} if none of its neighbors are larger than it. Two elements $a_i$ and $a_j$ are neighbors if $|i-j| = 1$. Design a divide-and-conquer $O(\log n)$ algorithm to find one peak element.
+
+\subsection*{Answer}
+Use a binary-search style divide-and-conquer approach:
+\begin{enumerate}
+  \item Inspect the middle index $m = \lfloor (\text{low} + \text{high})/2 \rfloor$.
+  \item If $A[m]$ is not smaller than either neighbor, it is a peak; return $m$.
+  \item If the left neighbor is larger ($A[m-1] > A[m]$), then a peak must exist in the left half $[\text{low}, m-1]$; continue search there.
+  \item Otherwise, the right neighbor is larger ($A[m+1] > A[m]$), and a peak must exist in the right half $[m+1, \text{high}]$; continue search there.
+\end{enumerate}
+
+Proof: Following the direction of a larger neighbor always moves toward a local maximum. Since the array is finite and elements are distinct, repeated moves toward a larger neighbor must eventually reach an index that is not smaller than either neighbor (a peak). Thus each step reduces the search interval while preserving the existence of at least one peak in the interval.
+
+Complexity: Each step inspects one element and discards roughly half of the remaining indices, so the runtime is $O(\log n)$ and space usage is $O(1)$ for the loop version described below.
+
+\subsection*{Kotlin implementation}
+The following function returns a 0-based index of any peak (or $-1$ for an empty array):
+
+\begin{lstlisting}[language=Java]
+fun findPeak(A: IntArray): Int {
+    if (A.isEmpty()) return -1
+
+    var low = 0
+    var high = A.lastIndex
+    while (low <= high) {
+        val mid = (low + high) / 2
+        val leftGreater = mid > 0 && A[mid - 1] > A[mid]
+        val rightGreater = mid < A.lastIndex && A[mid + 1] > A[mid]
+        if (!leftGreater && !rightGreater) {
+            return mid
+        } else if (leftGreater) {
+            high = mid - 1
+        } else {
+            low = mid + 1
+        }
+    }
+    return -1
+}
+\end{lstlisting}
+
+\section*{Q6 (10 points)}
+Given a sequence $A$ of $n$ integers and an integer $x$, design a divide-and-conquer algorithm to find the frequency of $x$ in $A$ (i.e., the number of times $x$ appears in $A$). What is the time complexity of your algorithm?
+
+\subsection*{Answer}
+Recursively split the array into two halves and count the occurrences of $x$ in each half, then sum the results. Base case: a single element (compare it to $x$ and return $1$ if equal, otherwise $0$). Correctness follows because counts are additive on disjoint subranges; each recursive step preserves the true count for that subrange.
+
+\textbf{Time complexity:} The recurrence is $T(n)=2T(n/2)+O(1)$. By the Master Theorem with $a=2$, $b=2$, and $f(n)=O(1)$, we have $n^{\log_b a} = n^{\log_2 2} = n$. Since $f(n) = O(1) = O(n^{1-\epsilon})$ for any $\epsilon > 0$, we are in \textbf{Case 1}, which gives $T(n)=\Theta(n)$. The recursion depth is $O(\log n)$, so extra space is $O(\log n)$.
+
+\subsection*{TypeScript implementation}
+The following functions compute the frequency of $x$ and include a small example runner:
+
+\begin{lstlisting}[language=Java]
+function countFrequency(A: number[], x: number) : number {
+    if (A.length === 0) return 0;
+    return countInRange(A, 0, A.length - 1, x);
+}
+
+function countInRange(A: number[], low: number, high: number, x: number): number {
+    if (low >= high) return A[low] === x ? 1 : 0;
+
+    const mid = Math.floor((low + high) / 2);
+    return countInRange(A, low, mid, x) + countInRange(A, mid + 1, high, x);
+}
+
+function main() {
+  const A = [1, 2, 3, 2, 2, 4];
+  const x = 2;
+  console.log(`freq of ${x} in [${A}] =`, countFrequency(A, x));
+}
+
+main();
+\end{lstlisting}
+
+\section*{Q7 (10 points)}
+Let $A = \langle a_1, \dots, a_n \rangle$ be an array of distinct integers. An element $a_i$ is a \emph{local minimum} if $a_i < a_{i-1}$ and $a_i < a_{i+1}$. Design a divide-and-conquer $O(\log n)$ algorithm to find a local minimum.
+
+\subsection*{Answer}
+Use a binary-search style divide-and-conquer approach:
+\begin{enumerate}
+  \item Inspect the middle index $m = \lfloor (\text{low} + \text{high})/2 \rfloor$.
+  \item If $A[m]$ is smaller than both neighbors (or is at an edge and smaller than its single neighbor this is our assumption), it is a local minimum; return $m$.
+  \item If the left neighbor is smaller ($A[m-1] < A[m]$), then a local minimum must exist in the left half $[\text{low}, m-1]$; continue search there.
+  \item Otherwise, the right neighbor is smaller ($A[m+1] < A[m]$), and a local minimum must exist in the right half $[m+1, \text{high}]$; continue search there.
+\end{enumerate}
+
+Correctness: moving toward the neighbor that is smaller always progresses toward a local minimum. Since the array elements are distinct, repeated moves reduce the search interval and eventually reach an index that is smaller than both neighbors.
+
+Complexity: Each step inspects one element and discards roughly half the indices, so the runtime is $O(\log n)$. Space usage is $O(1)$ for the iterative version or $O(\log n)$ recursion depth for a recursive implementation. The python example below is an iterative solution.
+
+\subsection*{Python implementation}
+The following function returns a 0-based index of any local minimum (or $-1$ for an empty array):
+
+\begin{lstlisting}[language=Python]
+"""
+"""
+Q7: Find a local minimum in O(log n) time.
+
+An element a[i] is a local minimum if:
+  - if i == 0: a[0] < a[1]
+  - if i == n-1: a[n-1] < a[n-2]
+  - otherwise: a[i] < a[i-1] and a[i] < a[i+1]
+
+Assumes all elements are distinct.
+"""
+"""
+
+def find_local_min(a) -> int:
+    n = len(a)
+    if n == 0:
+        return -1
+    if n == 1:
+        return 0
+    if a[0] < a[1]:
+        return 0
+    if a[-1] < a[-2]:
+        return n - 1
+
+    low, high = 1, n - 2  
+    while low <= high:
+        mid = (low + high) // 2
+        if a[mid] < a[mid - 1] and a[mid] < a[mid + 1]:
+            return mid
+        if a[mid - 1] < a[mid]:
+            high = mid - 1
+        else:
+            low = mid + 1
+
+    return -1  
+
+if __name__ == "__main__":
+    tests = [[1], [2, 1], [1, 2], [9,6,3,14,5,7,4], [1,2,3,4], [4,3,2,1]]
+    for t in tests:
+        idx = find_local_min(t)
+        print(t, "->", idx, t[idx] if idx != -1 else None)
+\end{lstlisting}
+
+\end{document}
