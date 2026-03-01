@@ -12,7 +12,16 @@
       "Bash(code --disable-extension mathematic.vscode-latex)",
       "Bash(code --uninstall-extension mathematic.vscode-latex)",
       "Bash(code --uninstall-extension james-yu.latex-workshop)",
-      "Bash(code --install-extension james-yu.latex-workshop)"
+      "Bash(code --install-extension james-yu.latex-workshop)",
+      "Bash(pip install pymupdf)",
+      "Bash(python -c \":*)",
+      "Bash(python3 -c \"print\\(''hi''\\)\")",
+      "Bash(py -c \"print\\(''hi''\\)\")",
+      "Bash(where python)",
+      "Bash(where python3)",
+      "Bash(where py)",
+      "Bash(py -c \":*)",
+      "Bash(py -m pip install pymupdf)"
     ]
   }
 }
