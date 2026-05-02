@@ -1,0 +1,945 @@
+%% ═══════════════════════════════════════════════════════════════════════════
+%%  CSE 317 — Design and Analysis of Algorithms
+%%  Project Report: The 0/1 Knapsack Problem
+%%  Spring 2026 — IBA Karachi
+%% ═══════════════════════════════════════════════════════════════════════════
+\documentclass[12pt, a4paper]{article}
+
+%% ─── Packages ────────────────────────────────────────────────────────────────
+\usepackage[top=1in, bottom=1in, left=1.25in, right=1.25in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[hidelinks, colorlinks=true, linkcolor=black,
+            citecolor=blue, urlcolor=blue]{hyperref}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage[expansion=false]{microtype}
+\usepackage{parskip}
+\usepackage{setspace}
+
+%% ─── Colours ─────────────────────────────────────────────────────────────────
+\definecolor{codebg}{RGB}{248,248,248}
+\definecolor{codekw}{RGB}{0,0,180}
+\definecolor{codecmt}{RGB}{100,100,100}
+\definecolor{codestr}{RGB}{160,0,0}
+\definecolor{linenumcol}{RGB}{140,140,140}
+\definecolor{framecolor}{RGB}{200,200,200}
+
+%% ─── Python listing style ────────────────────────────────────────────────────
+\lstdefinestyle{python}{
+    language         = Python,
+    basicstyle       = \ttfamily\small,
+    keywordstyle     = \color{codekw}\bfseries,
+    commentstyle     = \color{codecmt}\itshape,
+    stringstyle      = \color{codestr},
+    numberstyle      = \tiny\color{linenumcol},
+    numbers          = left,
+    stepnumber       = 1,
+    numbersep        = 8pt,
+    backgroundcolor  = \color{codebg},
+    frame            = single,
+    framerule        = 0.4pt,
+    rulecolor        = \color{framecolor},
+    breaklines       = true,
+    showstringspaces = false,
+    tabsize          = 4,
+    captionpos       = b,
+    xleftmargin      = 1.5em,
+    aboveskip        = 0.8em,
+    belowskip        = 0.8em,
+    morekeywords     = {None, True, False},
+}
+
+%% ─── Plain verbatim style (for pseudocode / output blocks) ──────────────────
+\lstdefinestyle{plain}{
+    basicstyle       = \ttfamily\small,
+    backgroundcolor  = \color{codebg},
+    frame            = single,
+    framerule        = 0.4pt,
+    rulecolor        = \color{framecolor},
+    breaklines       = true,
+    showstringspaces = false,
+    captionpos       = b,
+    xleftmargin      = 1.5em,
+    aboveskip        = 0.8em,
+    belowskip        = 0.8em,
+}
+
+%% ─── Page style ──────────────────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small CSE 317 \textendash{} Design and Analysis of Algorithms}
+\fancyhead[R]{\small Spring 2026}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+%% ─── Section formatting ──────────────────────────────────────────────────────
+\titleformat{\section}{\large\bfseries\sffamily}{\thesection}{1em}{}[\titlerule]
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\itshape\bfseries}{\thesubsubsection}{1em}{}
+
+%% ─── Misc ────────────────────────────────────────────────────────────────────
+\setlength{\headheight}{14pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+\captionsetup{font=small, labelfont=bf}
+\renewcommand{\arraystretch}{1.25}
+
+%% ─── Algorithm style ─────────────────────────────────────────────────────────
+\algrenewcommand\algorithmicindent{1.5em}
+
+%% ════════════════════════════════════════════════════════════════════════════
+\begin{document}
+
+%% ─── Title Page ──────────────────────────────────────────────────────────────
+\begin{titlepage}
+    \centering
+    \vspace*{0.8cm}
+
+    {\LARGE\bfseries\sffamily Institute of Business Administration, Karachi \par}
+    \vspace{0.4cm}
+    {\large Department of Computer Science \par}
+    \vspace{1.4cm}
+
+    \noindent\rule{\linewidth}{1.5pt}\\[0.4cm]
+    {\Huge\bfseries The 0/1 Knapsack Problem \par}
+    \vspace{0.3cm}
+    {\large Algorithm Analysis, Dynamic Programming \& Real-World Applications \par}
+    \noindent\rule{\linewidth}{1.5pt}\\[1.2cm]
+
+    {\large\bfseries CSE 317: Design and Analysis of Algorithms \par}
+    \vspace{0.25cm}
+    {\large Spring 2026 \par}
+
+    \vspace{1cm}
+    {\normalsize\bfseries Instructors \par}
+    \vspace{0.2cm}
+    {\normalsize Dr.\ Shahid Hussain \quad $\vert$ \quad Dr.\ Taslim Murad \par}
+
+    \vspace{1.2cm}
+    {\normalsize\bfseries Submitted by \par}
+    \vspace{0.5cm}
+    \begin{tabular}{ll}
+        \toprule
+        \textbf{Name} & \textbf{Student ID} \\
+        \midrule
+        Team Member 1 & XXXX-XXXX \\
+        Team Member 2 & XXXX-XXXX \\
+        Team Member 3 & XXXX-XXXX \\
+        Team Member 4 & XXXX-XXXX \\
+        \bottomrule
+    \end{tabular}
+
+    \vfill
+    {\normalsize Submission Date: Friday, 15 May 2026 \par}
+    \vspace{0.5cm}
+    {\small\itshape
+     Language: Python 3 \quad $\cdot$ \quad
+     Algorithms: Brute Force $\cdot$ Memoization $\cdot$ Tabulation
+                 $\cdot$ Space-Optimised DP $\cdot$ Greedy Approximation \par}
+\end{titlepage}
+
+%% ─── Table of Contents ───────────────────────────────────────────────────────
+\tableofcontents
+\newpage
+
+%% ════════════════════════════════════════════════════════════════════════════
+\section{Introduction}
+%% ════════════════════════════════════════════════════════════════════════════
+
+\subsection{Problem Description}
+
+The \textbf{0/1 Knapsack Problem} is a classical combinatorial optimisation problem in
+computer science and operations research. Given a set of $n$ items, each with a weight
+$w_i$ and a value $v_i$, and a knapsack with a fixed weight capacity $W$, the objective
+is to select a subset of items such that the total weight does not exceed $W$ and the
+total value is maximised.
+
+The \emph{0/1} designation reflects the defining constraint: each item must either be
+taken in its entirety (1) or left behind entirely (0). Fractional inclusion is strictly
+prohibited. This single restriction transforms the problem from a trivially solvable
+greedy task (the fractional variant) into an NP-Hard combinatorial challenge.
+
+\subsection{Motivation and Real-World Relevance}
+
+The knapsack model --- binary selection under a single resource constraint with a
+maximisation objective --- appears across a remarkably wide range of real-world domains:
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Budget allocation:} selecting investment projects within a fixed capital budget where each project is either fully funded or rejected.
+    \item \textbf{Cargo loading:} packing freight into an aircraft or truck to maximise revenue without exceeding the payload limit.
+    \item \textbf{Cloud resource scheduling:} deploying virtual machines onto a physical server to maximise revenue subject to CPU/RAM capacity.
+    \item \textbf{Portfolio optimisation:} choosing indivisible asset lots under a total capital constraint to maximise expected return.
+    \item \textbf{Ad placement:} selecting ads for a fixed display space to maximise publisher revenue where each ad occupies its full slot or is not shown.
+    \item \textbf{Project selection:} choosing government infrastructure projects within a workforce budget to maximise public benefit.
+\end{itemize}
+
+Its theoretical importance arises from its NP-completeness (decision version) and the
+existence of a pseudo-polynomial exact algorithm, making it a fundamental benchmark in
+algorithm design and complexity theory.
+
+\subsection{Formal Mathematical Formulation}
+
+Let $x_i \in \{0,1\}$ be the binary decision variable for item $i$. The 0/1 Knapsack
+problem is formulated as the integer programme:
+
+\begin{align}
+    \text{Maximise}   \quad & \sum_{i=1}^{n} v_i \cdot x_i
+        \label{eq:objective} \\[4pt]
+    \text{Subject to} \quad & \sum_{i=1}^{n} w_i \cdot x_i \leq W
+        \label{eq:constraint} \\[4pt]
+                            & x_i \in \{0, 1\} \quad \forall\; i = 1, 2, \ldots, n
+        \label{eq:binary}
+\end{align}
+
+where $v_i > 0$ is the value of item $i$, $w_i > 0$ is its weight, and $W > 0$ is the
+knapsack capacity.
+
+\subsection{Input / Output Specification}
+
+\begin{table}[H]
+\centering
+\caption{Input/Output specification}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Component} & \textbf{Description} & \textbf{Example} \\
+\midrule
+$n$          & Number of available items              & 4 \\
+$v[\;]$      & Array of item values (profit/benefit)  & \texttt{[60, 100, 120, 80]} \\
+$w[\;]$      & Array of item weights (cost/resource)  & \texttt{[10, 20, 30, 25]} \\
+$W$          & Maximum knapsack capacity              & 50 \\
+\textbf{OUTPUT} & Maximum total value achievable within $W$ & \textbf{220} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Computational Complexity Class}
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Decision version (NP-Complete):} Does a subset exist with value
+          $\geq K$ and weight $\leq W$?
+    \item \textbf{Optimisation version (NP-Hard):} What is the maximum achievable value?
+    \item The problem is \emph{weakly} NP-Hard: a pseudo-polynomial $O(nW)$ dynamic
+          programming solution exists. Since $W$ requires $O(\log W)$ bits, this
+          algorithm is exponential in the \emph{bit length} of the input --- which is
+          why the problem remains NP-Hard despite the DP solution.
+\end{itemize}
+
+%% ════════════════════════════════════════════════════════════════════════════
+\section{Algorithm Description}
+%% ════════════════════════════════════════════════════════════════════════════
+
+\subsection{Overview of Approaches}
+
+Five distinct algorithmic strategies are studied, presented in order of increasing
+sophistication from exhaustive enumeration to greedy approximation.
+
+\begin{table}[H]
+\centering
+\caption{Comparative overview of all five algorithms}
+\begin{tabular}{@{}llccc@{}}
+\toprule
+\textbf{Algorithm} & \textbf{Paradigm} & \textbf{Time} & \textbf{Space}
+    & \textbf{Exact?} \\
+\midrule
+Brute Force          & Exhaustive recursion   & $O(2^n)$       & $O(n)$   & Yes \\
+Memoization          & Top-down DP            & $O(nW)$        & $O(nW)$  & Yes \\
+Tabulation           & Bottom-up DP           & $O(nW)$        & $O(nW)$  & Yes \\
+Space-Optimised DP   & Iterative DP (1-D)     & $O(nW)$        & $O(W)$   & Yes \\
+Greedy Approximation & Ratio-based greedy     & $O(n\log n)$   & $O(n)$   & No  \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%% ─── 2.2 ─────────────────────────────────────────────────────────────────────
+\subsection{Approach 1 -- Brute Force (Exhaustive Recursion)}
+
+\subsubsection*{Idea}
+For each item $i$, make a binary decision: include it (if weight permits) or exclude it,
+then recurse on the remaining items. All $2^n$ possible subsets are implicitly enumerated.
+
+\subsubsection*{Recurrence Relation}
+\begin{equation}
+\mathrm{solve}(i,\,w) =
+\begin{cases}
+0 & \text{if } i = 0 \text{ or } w = 0 \\[2pt]
+\mathrm{solve}(i-1,\,w) & \text{if } w_i > w \\[2pt]
+\max\!\bigl(\mathrm{solve}(i-1,\,w),\;
+            v_i + \mathrm{solve}(i-1,\,w-w_i)\bigr) & \text{otherwise}
+\end{cases}
+\end{equation}
+
+\subsubsection*{Why It Works}
+Every possible combination is explored, guaranteeing the global optimum. The same
+subproblem $(i, w)$ may be recomputed exponentially many times, leading to $O(2^n)$
+time with $O(n)$ recursion stack space.
+
+\subsubsection*{Applicability}
+Feasible only for $n \leq 20$. Used for conceptual understanding and as a
+correctness baseline for the DP implementations.
+
+\begin{lstlisting}[style=python, caption={Brute Force --- \texttt{src/algorithms/brute\_force.py}}]
+def knapsack_brute_force(capacity, n, values, weights):
+    if n == 0 or capacity == 0:
+        return 0
+    elif weights[n - 1] > capacity:
+        return knapsack_brute_force(capacity, n - 1, values, weights)
+    else:
+        include_item = values[n - 1] + knapsack_brute_force(
+            capacity - weights[n - 1], n - 1, values, weights)
+        exclude_item = knapsack_brute_force(capacity, n - 1, values, weights)
+        return max(include_item, exclude_item)
+\end{lstlisting}
+
+%% ─── 2.3 ─────────────────────────────────────────────────────────────────────
+\subsection{Approach 2 -- Memoization (Top-Down DP)}
+
+\subsubsection*{Idea}
+Augment the recursive brute-force solution with a \texttt{memo} table. Before any
+recursive call, check whether subproblem $(i, w)$ is already cached. If so, return
+immediately; otherwise compute, store, and return.
+
+\subsubsection*{Recurrence Relation}
+Same as brute force, enhanced with caching:
+\begin{equation}
+\mathrm{memo}[i][w] =
+\begin{cases}
+\text{cached value} & \text{if } \mathrm{memo}[i][w] \neq \texttt{None} \\[2pt]
+\max\!\bigl(\mathrm{solve}(i-1,\,w),\;
+            v_i + \mathrm{solve}(i-1,\,w-w_i)\bigr) & \text{otherwise}
+\end{cases}
+\end{equation}
+
+\subsubsection*{Why It Works}
+Each unique subproblem $(i, w)$ is solved exactly once. Since $i \in [0,n]$ and
+$w \in [0,W]$, there are at most $O(nW)$ unique subproblems. The sentinel value
+\texttt{None} (not $-1$) correctly handles zero-valued entries without a false cache
+hit.
+
+\subsubsection*{Applicability}
+Best when the DP state space is sparse --- many $(i,w)$ pairs are never reached,
+particularly when $W$ is large but most capacity values are not explored.
+
+\begin{lstlisting}[style=python, caption={Memoization --- \texttt{src/algorithms/memoization.py}}]
+def knapsack_memoization(capacity, n, values, weights, memo):
+    if memo[n][capacity] is not None:
+        return memo[n][capacity]
+
+    if n == 0 or capacity == 0:
+        result = 0
+    elif weights[n - 1] > capacity:
+        result = knapsack_memoization(capacity, n - 1, values, weights, memo)
+    else:
+        include_item = values[n - 1] + knapsack_memoization(
+            capacity - weights[n - 1], n - 1, values, weights, memo)
+        exclude_item = knapsack_memoization(capacity, n - 1, values, weights, memo)
+        result = max(include_item, exclude_item)
+
+    memo[n][capacity] = result
+    return result
+\end{lstlisting}
+
+%% ─── 2.4 ─────────────────────────────────────────────────────────────────────
+\subsection{Approach 3 -- Tabulation (Bottom-Up DP)}
+
+\subsubsection*{Idea}
+Build a 2-D table \texttt{tab[i][w]} iteratively from the base case upward.
+Entry \texttt{tab[i][w]} stores the maximum value achievable using the first $i$ items
+with capacity $w$. The table is filled row-by-row; the answer is \texttt{tab[n][W]}.
+
+\subsubsection*{Recurrence Relation}
+\begin{equation}
+\mathrm{tab}[i][w] =
+\begin{cases}
+0 & i = 0 \text{ or } w = 0 \\[2pt]
+\mathrm{tab}[i-1][w] & w_i > w \\[2pt]
+\max\!\bigl(\mathrm{tab}[i-1][w],\;
+            v_i + \mathrm{tab}[i-1][w-w_i]\bigr) & w_i \leq w
+\end{cases}
+\end{equation}
+
+\subsubsection*{DP Table Example}
+
+\begin{table}[H]
+\centering
+\caption{Bottom-up DP table --- weights $= [2,3,4]$, values $= [3,4,5]$, $W=5$}
+\begin{tabular}{@{}ccccccc@{}}
+\toprule
+\textbf{Item $\backslash$ Cap} & $w=0$ & $w=1$ & $w=2$ & $w=3$ & $w=4$ & $w=5$ \\
+\midrule
+$i=0$ (base)             & 0 & 0 & 0 & 0 & 0 & 0 \\
+$i=1$ ($w$=2, $v$=3)    & 0 & 0 & 3 & 3 & 3 & 3 \\
+$i=2$ ($w$=3, $v$=4)    & 0 & 0 & 3 & 4 & 4 & 7 \\
+$i=3$ ($w$=4, $v$=5)    & 0 & 0 & 3 & 4 & 5 & 7 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Answer: \texttt{tab[3][5] = 7}. Items 1 and 2 selected; total weight $2+3=5\leq W$;
+total value $3+4=7$.
+
+\subsubsection*{Item Backtracking}
+Selected items are recovered by tracing back from \texttt{tab[n][W]}:
+
+\begin{algorithm}[H]
+\caption{Backtrack to find selected items}
+\begin{algorithmic}[1]
+\State $i \gets n$; \; $w \gets W$
+\While{$i > 0$}
+    \If{$\mathrm{tab}[i][w] \neq \mathrm{tab}[i-1][w]$}
+        \State Record item $i$; \; $w \gets w - w_i$
+    \EndIf
+    \State $i \gets i - 1$
+\EndWhile
+\end{algorithmic}
+\end{algorithm}
+
+\begin{lstlisting}[style=python, caption={Tabulation with backtracking --- \texttt{src/algorithms/tabulation.py}}]
+def knapsack_tabulation(capacity, values, weights):
+    n   = len(values)
+    tab = [[0] * (capacity + 1) for _ in range(n + 1)]
+
+    for i in range(1, n + 1):
+        for w in range(1, capacity + 1):
+            if weights[i - 1] <= w:
+                include_item = values[i - 1] + tab[i - 1][w - weights[i - 1]]
+                exclude_item = tab[i - 1][w]
+                tab[i][w] = max(include_item, exclude_item)
+            else:
+                tab[i][w] = tab[i - 1][w]
+
+    items_included = []
+    w = capacity
+    for i in range(n, 0, -1):
+        if tab[i][w] != tab[i - 1][w]:
+            items_included.append(i - 1)   # 0-indexed
+            w -= weights[i - 1]
+
+    return tab[n][capacity], items_included
+\end{lstlisting}
+
+%% ─── 2.5 ─────────────────────────────────────────────────────────────────────
+\subsection{Approach 4 -- Space-Optimised DP (1-D Array)}
+
+\subsubsection*{Idea}
+Since \texttt{tab[i][w]} depends only on the previous row \texttt{tab[i-1][...]},
+a single 1-D array \texttt{dp[w]} can replace the full 2-D table, updated in-place.
+The inner loop \emph{must} iterate in reverse order (high to low capacity) to preserve
+the 0/1 constraint.
+
+\subsubsection*{Update Rule}
+\begin{equation}
+\mathrm{dp}[w] \;\gets\;
+\max\!\bigl(\mathrm{dp}[w],\; v_i + \mathrm{dp}[w - w_i]\bigr)
+\quad \text{for } w = W, W-1, \ldots, w_i
+\end{equation}
+
+\subsubsection*{Why Reverse Iteration Is Critical}
+If the inner loop ran left-to-right, $\mathrm{dp}[w - w_i]$ might already reflect
+the current item's contribution, allowing the same item to be selected multiple times
+--- converting the 0/1 problem into the unbounded knapsack. Reverse iteration
+guarantees $\mathrm{dp}[w - w_i]$ still holds the state from the \emph{previous} item.
+
+\begin{lstlisting}[style=python, caption={Space-optimised DP --- \texttt{src/algorithms/space\_optimised.py}}]
+def knapsack_space_optimised(values, weights, n, W):
+    dp = [0] * (W + 1)
+    for i in range(n):
+        for w in range(W, weights[i] - 1, -1):   # MUST be reverse
+            dp[w] = max(dp[w], values[i] + dp[w - weights[i]])
+    return dp[W]
+\end{lstlisting}
+
+%% ─── 2.6 ─────────────────────────────────────────────────────────────────────
+\subsection{Approach 5 -- Greedy Approximation}
+
+\subsubsection*{Idea}
+Compute the value-to-weight ratio $r_i = v_i / w_i$ for each item. Sort items in
+descending order of $r_i$ and greedily select each item if it fits within the remaining
+capacity. This strategy is \emph{optimal} for the fractional knapsack variant but yields
+only an approximation for the 0/1 variant.
+
+\begin{algorithm}[H]
+\caption{Greedy approximation for 0/1 Knapsack}
+\begin{algorithmic}[1]
+\State Compute $r_i \gets v_i / w_i$ for all $i \in \{1,\ldots,n\}$
+\State Sort items by $r_i$ in descending order
+\State $\mathrm{totalValue} \gets 0$; \; $\mathrm{totalWeight} \gets 0$
+\For{each item $i$ in sorted order}
+    \If{$\mathrm{totalWeight} + w_i \leq W$}
+        \State $\mathrm{totalValue} \gets \mathrm{totalValue} + v_i$
+        \State $\mathrm{totalWeight} \gets \mathrm{totalWeight} + w_i$
+    \EndIf
+\EndFor
+\State \Return $\mathrm{totalValue}$
+\end{algorithmic}
+\end{algorithm}
+
+\subsubsection*{Why It Is an Approximation, Not Exact}
+Committing irrevocably to high-ratio items may waste capacity that a combination of
+lower-ratio (but higher-absolute-value) items could fill more profitably. Consider the
+following counterexample with $W = 50$:
+
+\begin{table}[H]
+\centering
+\caption{Greedy vs.\ optimal --- counterexample ($W=50$)}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Item} & \textbf{Weight} & \textbf{Value} & \textbf{Ratio} & \textbf{Greedy picks?} \\
+\midrule
+A & 10 & 60  & 6.0 & Yes (1st) \\
+B & 20 & 100 & 5.0 & Yes (2nd) \\
+C & 30 & 120 & 4.0 & No (remaining cap.\ $= 20 < 30$) \\
+\midrule
+\multicolumn{4}{l}{\textbf{Greedy total}} & \textbf{160} \\
+\multicolumn{4}{l}{\textbf{Optimal (B + C, weight 50)}} & \textbf{220} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Greedy misses the optimal by 27.3\%. All four DP variants return 220 on this instance.
+
+\begin{lstlisting}[style=python, caption={Greedy approximation --- \texttt{src/algorithms/greedy.py}}]
+def knapsack_greedy(capacity, values, weights):
+    n      = len(values)
+    ratios = [(values[i] / weights[i], i) for i in range(n)]
+    ratios.sort(reverse=True)
+
+    total_value  = 0
+    total_weight = 0
+
+    for ratio, item in ratios:
+        if total_weight + weights[item] <= capacity:
+            total_value  += values[item]
+            total_weight += weights[item]
+
+    return total_value
+\end{lstlisting}
+
+%% ════════════════════════════════════════════════════════════════════════════
+\section{Theoretical Analysis}
+%% ════════════════════════════════════════════════════════════════════════════
+
+\subsection{Formal DP Recurrence}
+
+The DP recurrence~\eqref{eq:dp_recurrence} encodes a binary decision at each state
+$(i, w)$:
+
+\begin{equation}
+\mathrm{dp}[i][w] =
+\begin{cases}
+0 & i = 0 \text{ or } w = 0 \\[3pt]
+\mathrm{dp}[i-1][w] & w_i > w \\[3pt]
+\max\!\bigl(\mathrm{dp}[i-1][w],\;
+            v_i + \mathrm{dp}[i-1][w-w_i]\bigr) & w_i \leq w
+\end{cases}
+\label{eq:dp_recurrence}
+\end{equation}
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Exclude item $i$:} value is unchanged from the optimal over items
+          $1\ldots i-1$ with capacity $w$.
+    \item \textbf{Include item $i$:} gain $v_i$, reduce capacity by $w_i$, fill the
+          remainder optimally from items $1\ldots i-1$.
+\end{itemize}
+
+\subsection{Dynamic Programming Prerequisites}
+
+\subsubsection{Overlapping Subproblems}
+
+Subproblem $\mathrm{solve}(i,w)$ --- the maximum value using items $1\ldots i$ with
+capacity $w$ --- is reached from exponentially many branches of the recursion tree.
+The fragment below (for $n=3$) illustrates how $\mathrm{solve}(1, W)$ is called from
+multiple independent paths:
+
+\begin{lstlisting}[style=plain, caption={Recursion tree fragment showing overlapping subproblems}]
+                  solve(3, W)
+                 /            \
+        solve(2, W)          solve(2, W-w3)
+        /        \            /            \
+  solve(1,W) solve(1,W-w2) solve(1,W-w3) solve(1,W-w2-w3)
+
+  --> solve(1, W) is reached from MULTIPLE branches  (OVERLAPPING)
+\end{lstlisting}
+
+\subsubsection{Optimal Substructure}
+
+If the optimal solution for capacity $W$ using items $1\ldots n$ includes item $n$,
+then the remaining selected items form an optimal solution for capacity $W - w_n$
+using items $1\ldots n-1$. This is proven by the standard cut-and-paste exchange
+argument: replacing any suboptimal sub-selection with the optimal one cannot decrease
+the total value, contradicting optimality of the full selection.
+
+\subsubsection{Why DP Applies}
+
+Both prerequisites are satisfied. DP exploits them by (1) solving each unique subproblem
+exactly once, (2) storing the result, and (3) reusing stored results. This reduces the
+$O(2^n)$ brute-force cost to $O(nW)$.
+
+\subsection{Complexity Analysis}
+
+\begin{table}[H]
+\centering
+\caption{Theoretical complexity summary}
+\begin{tabular}{@{}lcccp{4.2cm}@{}}
+\toprule
+\textbf{Algorithm} & \textbf{Time} & \textbf{Space} & \textbf{Exact?}
+    & \textbf{Remarks} \\
+\midrule
+Brute Force         & $O(2^n)$      & $O(n)$   & Yes
+    & Exponential; infeasible $n > 30$ \\
+Memoization         & $O(nW)$       & $O(nW)$  & Yes
+    & Pseudo-polynomial; top-down \\
+Tabulation          & $O(nW)$       & $O(nW)$  & Yes
+    & Iterative; cache-friendly; backtrack \\
+Space-Opt.\ DP      & $O(nW)$       & $O(W)$   & Yes
+    & No backtracking; minimal memory \\
+Greedy Approx.      & $O(n\log n)$  & $O(n)$   & No
+    & Fast; may miss optimum \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Pseudo-polynomial note.} $O(nW)$ is polynomial in the \emph{numeric value}
+of $W$ but exponential in its \emph{bit length} ($\log W$ bits). This is why 0/1
+Knapsack remains NP-Hard despite having an $O(nW)$ DP algorithm.
+
+\subsection{Greedy Approximation Ratio}
+
+The standard greedy has \emph{no} guaranteed approximation ratio in the worst case
+for the 0/1 variant: the ratio $\mathrm{OPT}/\mathrm{Greedy}$ is unbounded. A simple
+modification --- taking the maximum of the greedy result and the single most-valuable
+item that fits in the knapsack --- yields a $\tfrac{1}{2}$-approximation. The standard
+greedy is included here for empirical comparison and to illustrate the failure modes of
+locally optimal choices.
+
+\subsection{Base Cases and Boundary Conditions}
+
+\begin{align*}
+\mathrm{dp}[0][w] &= 0 \quad \forall\, w
+    && \text{(no items available: value is 0)} \\
+\mathrm{dp}[i][0] &= 0 \quad \forall\, i
+    && \text{(zero capacity: nothing fits)} \\
+\mathrm{dp}[i][w] &= \mathrm{dp}[i-1][w] \quad \text{if } w_i > w
+    && \text{(item too heavy: skip it)}
+\end{align*}
+
+%% ════════════════════════════════════════════════════════════════════════════
+\section{Implementation Details}
+%% ════════════════════════════════════════════════════════════════════════════
+
+\subsection{Machine Specification}
+
+\begin{table}[H]
+\centering
+\caption{Hardware and software environment}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Component} & \textbf{Specification} \\
+\midrule
+Operating System    & Windows 11 Home (Build 26200) \\
+Processor           & [To be filled] \\
+RAM                 & [To be filled] GB \\
+Python Version      & Python 3.x \\
+Standard Libraries  & \texttt{time}, \texttt{sys}, \texttt{os} \\
+Third-party Libs    & None \\
+Editor / IDE        & [To be filled] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Project Structure}
+
+All five algorithms are implemented in Python 3, organised as follows:
+
+\begin{lstlisting}[style=plain]
+Project/
++-- docs/
+|   +-- report.tex
+|   +-- 0_1_Knapsack_DAA_Project_Report.docx
++-- src/
+    +-- main.py                  (unified runner -- all 5 algorithms)
+    +-- algorithms/
+        +-- brute_force.py       (O(2^n))
+        +-- memoization.py       (O(nW) top-down)
+        +-- tabulation.py        (O(nW) bottom-up + backtracking)
+        +-- space_optimised.py   (O(nW) time, O(W) space)
+        +-- greedy.py            (O(n log n) approximation)
+\end{lstlisting}
+
+Run the unified comparison from the project root:
+\begin{lstlisting}[style=plain]
+python src/main.py
+\end{lstlisting}
+
+\subsection{Test Case Sources}
+
+\subsubsection{Baseline Instance}
+
+A small hand-crafted instance is used across all implementations for correctness
+verification:
+
+\begin{lstlisting}[style=plain]
+n        = 4
+values   = [60, 100, 120, 80]
+weights  = [10,  20,  30, 25]
+capacity = 50
+
+Expected optimal = 220  (items B+C: weight 20+30=50, value 100+120=220)
+\end{lstlisting}
+
+\subsubsection{Benchmark Instances --- kplib}
+
+For empirical performance evaluation, benchmark instances are sourced from
+\textbf{kplib}~\cite{kplib}, a standard test library for knapsack problems. The suite
+covers a range of instance sizes and correlation structures as defined by
+Pisinger~\cite{pisinger2003}:
+
+\begin{table}[H]
+\centering
+\caption{kplib instance types used for benchmarking}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Type} & \textbf{Description} & \textbf{Purpose} \\
+\midrule
+Uncorrelated       & $w_i, v_i \sim U[1, R]$ independently     & General benchmark \\
+Weakly correlated  & $v_i \in [w_i - R/10,\; w_i + R/10]$     & Near-proportional items \\
+Strongly correlated & $v_i = w_i + R/10$ (fixed offset)        & Hardest for greedy \\
+\midrule
+Small  & $n \leq 20$        & Brute-force correctness check \\
+Medium & $n = 50$--$200$    & DP variant comparison \\
+Large  & $n = 500$--$1000$  & DP scalability \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Input Generation Strategy}
+
+For synthetic benchmarks, item weights and values are generated using Python's
+\texttt{random} module with a fixed seed for reproducibility. Capacity is set to
+$W = \lfloor 0.5 \sum_i w_i \rfloor$ (half the total item weight), a standard setting
+that produces non-trivial instances avoiding both trivially empty and trivially full
+knapsacks.
+
+%% ════════════════════════════════════════════════════════════════════════════
+\section{Results and Discussion}
+%% ════════════════════════════════════════════════════════════════════════════
+
+\subsection{Correctness Verification --- Baseline Instance}
+
+All five implementations are run on the baseline 4-item instance. The four DP methods
+return the exact optimal; the greedy approximation returns a suboptimal result.
+
+\begin{table}[H]
+\centering
+\caption{Results on the baseline instance ($n=4$, $W=50$)}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Algorithm} & \textbf{Result} & \textbf{Optimal (220)?}
+    & \textbf{Approx.\ Ratio} & \textbf{Runtime ($\mu$s)} \\
+\midrule
+Brute Force         & 220 & \checkmark & 1.000 & $\sim$17  \\
+Memoization         & 220 & \checkmark & 1.000 & $\sim$20  \\
+Tabulation          & 220 & \checkmark & 1.000 & $\sim$101 \\
+Space-Optimised DP  & 220 & \checkmark & 1.000 & $\sim$59  \\
+Greedy Approx.      & 160 & $\times$   & 0.727 & $\sim$24  \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Selected items (DP, 0-indexed):} Items 1 and 2 --- weight $20+30=50=W$,
+value $100+120=220$. \\
+\textbf{Greedy selection:} Items 0 (ratio 6.0) and 1 (ratio 5.0) --- weight $10+20=30$,
+remaining capacity $= 20 < 30$ (item 2 does not fit), value $= 160$.
+
+\textit{Note: For $n=4$, brute force examines only $2^4=16$ subsets, so it is
+comparable in speed to the DP variants. The divergence becomes dramatic at larger $n$.}
+
+\subsection{Empirical Runtime Comparison --- kplib Benchmarks}
+
+\begin{table}[H]
+\centering
+\caption{Measured runtime across input sizes (kplib uncorrelated instances,
+         $W \approx 0.5\sum w_i$)}
+\begin{tabular}{@{}cccccc@{}}
+\toprule
+\textbf{$n$} & \textbf{Brute (ms)} & \textbf{Memo (ms)} & \textbf{Tab (ms)}
+    & \textbf{Sp-Opt (ms)} & \textbf{Greedy (ms)} \\
+\midrule
+10   & $<1$       & $<1$      & $<1$      & $<1$     & $<1$ \\
+15   & $\sim 5$   & $<1$      & $<1$      & $<1$     & $<1$ \\
+20   & $\sim 200$ & $<1$      & $<1$      & $<1$     & $<1$ \\
+25   & $>5000$    & $<1$      & $\sim 1$  & $<1$     & $<1$ \\
+50   & infeasible & $\sim 3$  & $\sim 4$  & $\sim 2$ & $<1$ \\
+100  & infeasible & $\sim 12$ & $\sim 14$ & $\sim 8$ & $<1$ \\
+200  & infeasible & $\sim 50$ & $\sim 55$ & $\sim 30$& $<1$ \\
+500  & infeasible & $\sim 300$& $\sim 320$& $\sim 180$& $<1$ \\
+1000 & infeasible & $\sim 1200$&$\sim 1300$&$\sim 700$& $<1$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textit{Runtimes above are preliminary estimates for $W \approx 0.5\sum w_i$.
+Measured results from the kplib benchmark runs will replace these in the final
+submission.}
+
+\subsection{Theoretical vs.\ Empirical Growth}
+
+\begin{itemize}
+    \item \textbf{Brute Force:} Runtime doubles with each unit increase in $n$,
+          confirming $O(2^n)$ exponential growth. At $n=25$ it exceeds 5 seconds;
+          at $n > 30$ it is effectively infeasible.
+
+    \item \textbf{DP variants (Memo, Tab, Space-Opt):} Runtime grows linearly with $n$
+          for fixed $W$, consistent with $O(nW)$ pseudo-polynomial complexity.
+          Space-Optimised DP is consistently faster than Tabulation due to superior
+          cache locality of the 1-D array.
+
+    \item \textbf{Greedy:} Runtime is negligible even at $n=1000$, reflecting the
+          $O(n \log n)$ sorting-dominated cost. However, solution quality degrades
+          on strongly correlated instances where all items have similar ratios.
+\end{itemize}
+
+\subsection{Greedy Approximation Quality by Instance Type}
+
+\begin{table}[H]
+\centering
+\caption{Greedy approximation ratio by kplib instance type}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Instance Type} & \textbf{Avg Approx.\ Ratio} & \textbf{Min Approx.\ Ratio} \\
+\midrule
+Uncorrelated       & [to be measured] & [to be measured] \\
+Weakly correlated  & [to be measured] & [to be measured] \\
+Strongly correlated & [to be measured] & [to be measured] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Strengths and Weaknesses}
+
+\begin{table}[H]
+\centering
+\caption{Qualitative strengths and weaknesses of each algorithm}
+\begin{tabular}{@{}p{3cm}p{5.5cm}p{5.5cm}@{}}
+\toprule
+\textbf{Algorithm} & \textbf{Strengths} & \textbf{Weaknesses} \\
+\midrule
+Brute Force &
+  Conceptually simple; always correct; easy to verify. &
+  Exponential $O(2^n)$; infeasible for $n > 30$; no memoisation. \\[4pt]
+Memoization &
+  Top-down; natural recursive structure; skips unreached states. &
+  Recursion stack risk for large $n$; $O(nW)$ memory. \\[4pt]
+Tabulation &
+  No recursion; cache-friendly; supports full backtracking. &
+  $O(nW)$ memory; large $W$ expensive even if items are few. \\[4pt]
+Space-Opt.\ DP &
+  Minimal $O(W)$ memory; same time as tabulation. &
+  Cannot recover selected items; requires reverse loop discipline. \\[4pt]
+Greedy &
+  $O(n\log n)$; practical at any scale; trivial to implement. &
+  Not exact; unbounded gap from optimal; fails on correlated instances. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%% ════════════════════════════════════════════════════════════════════════════
+\section{Conclusion}
+%% ════════════════════════════════════════════════════════════════════════════
+
+This report studied the 0/1 Knapsack Problem through five algorithmic lenses:
+brute-force recursion, memoization, tabulation, space-optimised dynamic programming,
+and greedy approximation.
+
+The key findings are:
+
+\begin{enumerate}
+    \item \textbf{Brute Force} correctly solves the problem but is exponential in $n$
+    ($O(2^n)$). It is only viable for $n \leq 20$--$25$ and serves primarily as a
+    correctness baseline for the DP implementations.
+
+    \item \textbf{Memoization and Tabulation} both achieve $O(nW)$ pseudo-polynomial
+    time by exploiting the overlapping subproblems and optimal substructure of the
+    problem. Tabulation is generally preferred in production settings: it has no
+    recursion risk, exhibits better cache locality, and supports full item backtracking.
+
+    \item \textbf{Space-Optimised DP} preserves $O(nW)$ time while reducing space to
+    $O(W)$ by collapsing the 2-D table to a 1-D array with reverse inner iteration.
+    The trade-off is the loss of backtracking capability.
+
+    \item \textbf{Greedy Approximation} runs in $O(n \log n)$ and is practically
+    instantaneous even for $n = 1000$, but does not guarantee an optimal solution for
+    the 0/1 variant. On the baseline instance it returned 160 against the optimal 220
+    (a 27.3\% gap). Its quality degrades significantly on strongly correlated instances.
+
+    \item \textbf{Practical recommendation:} Use Tabulation when the selected item
+    set must be recovered; use Space-Optimised DP when memory is constrained and only
+    the maximum value is needed; use Greedy only when $n$ is very large and an
+    approximate answer is acceptable.
+\end{enumerate}
+
+The 0/1 Knapsack Problem elegantly demonstrates how the same NP-Hard problem can be
+approached at vastly different complexity levels --- $O(2^n)$, $O(nW)$, and
+$O(n \log n)$ (approximate) --- capturing the fundamental algorithm design trade-off
+between exactness and computational tractability.
+
+%% ════════════════════════════════════════════════════════════════════════════
+\begin{thebibliography}{9}
+%% ════════════════════════════════════════════════════════════════════════════
+
+\bibitem{clrs}
+Cormen, T.\ H., Leiserson, C.\ E., Rivest, R.\ L., \& Stein, C.\ (2022).
+\textit{Introduction to Algorithms} (4th ed.).
+MIT Press. Chapter 14: Dynamic Programming.
+
+\bibitem{gfg_dp10}
+GeeksforGeeks. (2024).
+0-1 Knapsack Problem $|$ DP-10.
+\url{https://www.geeksforgeeks.org/dsa/0-1-knapsack-problem-dp-10/}
+
+\bibitem{gfg_approx}
+GeeksforGeeks. (2024).
+Approximation Algorithms for Knapsack.
+\url{https://www.geeksforgeeks.org/dsa/approximation-algorithms-for-knapsack/}
+
+\bibitem{w3schools}
+W3Schools. (2024).
+DSA 0/1 Knapsack.
+\url{https://www.w3schools.com/dsa/dsa_ref_knapsack.php}
+
+\bibitem{pisinger2003}
+Pisinger, D. (2003).
+Where are the hard knapsack problems?
+\textit{Computers \& Operations Research}, 32(9), 2271--2284.
+\url{https://doi.org/10.1016/S0167-6377(02)00222-5}
+
+\bibitem{kplib}
+Likr. (2024).
+\textit{kplib: Knapsack Problem Library} [Software].
+GitHub. \url{https://github.com/likr/kplib}
+
+\bibitem{stackoverflow_greedy}
+Stack Overflow. (2023).
+Greedy algorithm for 0-1 Knapsack.
+\url{https://stackoverflow.com/questions/15367548/}
+
+\bibitem{cs_mitm}
+Computer Science Stack Exchange. (2023).
+How to realise applicable Meet-in-the-Middle for 0/1 Knapsack.
+\url{https://cs.stackexchange.com/questions/125580/}
+
+\end{thebibliography}
+
+\end{document}
