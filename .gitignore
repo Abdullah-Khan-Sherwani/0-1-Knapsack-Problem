@@ -30,8 +30,6 @@ venv/
 Thumbs.db
 desktop.ini
 
-# Test cases (cloned separately, not tracked)
-testcases/
 
 # Editor
 .vscode/
