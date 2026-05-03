@@ -1,0 +1,379 @@
+════════════════════════════════════════════════════════════════════════════════
+                        TEST SUITE GUIDE
+════════════════════════════════════════════════════════════════════════════════
+
+This document provides detailed guidance on each test file, how to run them,
+what they test, and what results to expect.
+
+════════════════════════════════════════════════════════════════════════════════
+QUICK START COMMANDS
+════════════════════════════════════════════════════════════════════════════════
+
+All commands run from project root directory:
+
+1. Baseline (4 items):
+   python src/main.py demo
+
+2. Edge Cases (7 tests):
+   python testing/test_all_algorithms.py
+
+3. Limited Smart Testing (6 samples):
+   python testing/test_limited_focused.py
+
+4. Intensive Testing (24 instances):
+   python testing/final_intensive_test.py
+
+5. Full Benchmark (100+ instances):
+   python testing/intensive_test_suite.py
+
+════════════════════════════════════════════════════════════════════════════════
+TEST 1: test_all_algorithms.py
+════════════════════════════════════════════════════════════════════════════════
+
+Purpose:
+  Edge case and boundary condition testing. Verifies algorithms handle:
+  - Empty capacity
+  - Single items
+  - All items fit
+  - No items fit
+  - Standard baseline case
+
+What It Tests:
+  7 comprehensive test cases covering common edge cases
+
+Test Cases:
+  1. Empty Capacity (cap=0)              → Expected: 0
+  2. Single Item (fits)                   → Expected: 100
+  3. All Items Fit                        → Expected: 60
+  4. No Items Fit                         → Expected: 0
+  5. Baseline (4 items, cap=50)           → Expected: 220
+  6. High Value Single Item               → Expected: 1000
+  7. Capacity = Single Item Weight        → Expected: 100
+
+How to Run:
+  python testing/test_all_algorithms.py
+
+Expected Output:
+  ✓ All 7 tests PASSED
+  Runtime: ~100ms
+
+What It Validates:
+  ✓ Basic algorithm correctness
+  ✓ Boundary conditions handled
+  ✓ Edge cases working properly
+  ✓ All 5 algorithms produce correct results
+
+════════════════════════════════════════════════════════════════════════════════
+TEST 2: test_limited_focused.py
+════════════════════════════════════════════════════════════════════════════════
+
+Purpose:
+  Limited but smart testing across all problem categories. Shows algorithm
+  consistency and greedy approximation quality on diverse instances.
+
+What It Tests:
+  6 sample instances from kplib benchmark:
+    - 2 from Uncorrelated category
+    - 2 from Weakly Correlated category
+    - 2 from Strongly Correlated category
+
+Problem Sizes:
+  n=50 (small), n=100 (medium)
+
+Key Feature:
+  All exact algorithms run when memory allows, demonstrating consistency.
+  Greedy approximation gap clearly visible.
+
+How to Run:
+  python testing/test_limited_focused.py
+
+Expected Output:
+  ✓ All 6 tests PASSED
+  
+  Table Format:
+    Instance | n | Cap | BF | MEMO | TAB | SO | Greedy
+    
+  Where:
+    BF = Brute Force (SKIP for n>20)
+    MEMO = Memoization result
+    TAB = Tabulation result
+    SO = Space-Optimised result
+    Greedy = Greedy approximation result
+
+Runtime: ~3-5 seconds
+
+What It Validates:
+  ✓ Algorithm consistency (all exact algorithms match)
+  ✓ Greedy approximation quality (0-4% gap)
+  ✓ Correctness on real benchmark data
+  ✓ Handling of diverse problem types
+
+Example Output Row:
+  00Uncorrelated/n00050/s000    50    14778    SKIP    20995    20995    20995    20995
+  (All exact algorithms return 20995, greedy also perfect!)
+
+════════════════════════════════════════════════════════════════════════════════
+TEST 3: test_brute_force_forced.py
+════════════════════════════════════════════════════════════════════════════════
+
+Purpose:
+  Force brute force execution to demonstrate it works correctly, despite
+  being exponential. Shows why DP is needed for larger problems.
+
+What It Tests:
+  Brute force on single small instance and compares to Space-Optimised DP
+
+Problem:
+  Single kplib instance: n=50, capacity=14,778
+  This triggers 2^50 = 1,125,899,906,842,624 operations
+
+Warning:
+  This test will take a VERY LONG TIME on n=50.
+  Recommended: Only run for demonstration if you have patience/time.
+
+How to Run:
+  python testing/test_brute_force_forced.py
+
+Expected Output:
+  ✓ Both algorithms return same result
+  ✗ Brute Force will be MUCH SLOWER than DP
+
+Runtime: Depends on system, potentially hours for n=50
+
+What It Validates:
+  ✓ Brute force algorithm is correct
+  ✓ Demonstrates exponential complexity practically
+  ✓ Justifies DP approach for larger problems
+
+Note: For presentations, mention this test exists but don't actually run it
+      on large n. It's mainly for theoretical validation.
+
+════════════════════════════════════════════════════════════════════════════════
+TEST 4: comprehensive_validator.py
+════════════════════════════════════════════════════════════════════════════════
+
+Purpose:
+  5-phase comprehensive validation approach. Systematically checks:
+  1. Small instance correctness
+  2. Scalability with larger problems
+  3. Algorithm consistency
+  4. Edge case handling
+  5. Standard procedure compliance
+
+What It Tests:
+  Multi-phase validation across diverse instances
+
+Phases:
+  1. Small Instances (n≤50)
+     - Tests all algorithms can execute
+     - Verifies consistency
+  
+  2. Scalability (n=50→500)
+     - Tests performance with increasing size
+     - Verifies complexity behavior
+  
+  3. Consistency (multiple instances)
+     - Confirms all exact algorithms match
+     - Checks across problem types
+  
+  4. Edge Cases
+     - Empty capacity, single items, etc.
+  
+  5. Standard Procedures
+     - Verifies algorithms follow expected approaches
+     - Checks complexity compliance
+
+How to Run:
+  python testing/comprehensive_validator.py
+
+Expected Output:
+  ✓ All 5 phases PASSED
+  Summary of findings for each phase
+
+Runtime: ~2-3 minutes
+
+What It Validates:
+  ✓ Algorithm correctness at all scales
+  ✓ Complexity matches expected behavior
+  ✓ Edge cases handled properly
+  ✓ Procedures follow standard DP/algorithmic patterns
+
+════════════════════════════════════════════════════════════════════════════════
+TEST 5: final_intensive_test.py
+════════════════════════════════════════════════════════════════════════════════
+
+Purpose:
+  Focused intensive testing on 24 diverse kplib instances. Shows scaling
+  across problem sizes and categories. Best test for presentations.
+
+What It Tests:
+  24 diverse kplib instances structured as:
+    3 Categories (Uncorrelated, Weakly, Strongly Correlated)
+    × 4 Sizes (n=50, n=100, n=200, n=500)
+    × 2 Instances each = 24 total
+
+Problem Coverage:
+  - Small: n=50 (all algorithms run)
+  - Medium: n=100 (DP algorithms run)
+  - Large: n=200 (DP algorithms only)
+  - XLarge: n=500 (Space-Optimised + Greedy)
+
+How to Run:
+  python testing/final_intensive_test.py
+
+Expected Output:
+  ✓ 23-24 instances PASSED
+  Table showing results for each instance:
+    
+    Category              Size        n    Cap  Optimal  BF  Memo  SO  Greedy Status
+    ─────────────────────────────────────────────────────────────────────────────────
+    00Uncorrelated       n00050      50  14778   20995   ─   20995 ─  20995 ✓ GREEDY_OPT
+    02StronglyCorrelated n00100     100  29017   35617   ─   35617 ─  35372 ✓ GAP:1%
+
+Runtime: ~30-60 seconds
+
+What It Validates:
+  ✓ Algorithms scale properly
+  ✓ Consistency across all problem types
+  ✓ Greedy gap behavior (varies by category)
+  ✓ Performance characteristics
+  ✓ Ready for real-world problems
+
+Best Use: Run this test during presentation to show real benchmark data
+
+════════════════════════════════════════════════════════════════════════════════
+TEST 6: intensive_test_suite.py
+════════════════════════════════════════════════════════════════════════════════
+
+Purpose:
+  Large-scale benchmark testing on 100+ kplib instances. Generates CSV
+  results for detailed analysis. Optional - only run if time permits.
+
+What It Tests:
+  100+ kplib benchmark instances across all categories and sizes
+
+Coverage:
+  All kplib problem types:
+    - Uncorrelated
+    - Weakly Correlated
+    - Strongly Correlated
+    - Subset Sums
+    - Multiple constraints
+    - And more
+
+Output:
+  Generates: test_results.csv with complete results
+    Columns: Instance, n, Capacity, Algo, Time(ms), Result, Gap(%)
+
+How to Run:
+  python testing/intensive_test_suite.py
+
+Expected Output:
+  ✓ 100+ instances processed
+  CSV file: test_results.csv
+
+Runtime: 5-10 minutes depending on system
+
+What It Validates:
+  ✓ Large-scale correctness
+  ✓ Performance on diverse problems
+  ✓ Comprehensive gap analysis
+  ✓ Complete benchmark dataset
+
+Note: This is optional for presentations. The CSV can be used for plots
+      or detailed analysis if needed.
+
+════════════════════════════════════════════════════════════════════════════════
+RECOMMENDED TEST SEQUENCE
+════════════════════════════════════════════════════════════════════════════════
+
+For Quick Validation (5 minutes):
+  1. python src/main.py demo           (30 seconds, baseline)
+  2. python testing/test_all_algorithms.py    (1 minute, edge cases)
+  
+  Result: ✓ Algorithms work on simple cases
+
+For Thorough Validation (10 minutes):
+  1. python src/main.py demo
+  2. python testing/test_all_algorithms.py
+  3. python testing/test_limited_focused.py
+  
+  Result: ✓ Algorithms work across problem types and sizes
+
+For Comprehensive Validation (30 minutes):
+  1. python src/main.py demo
+  2. python testing/test_all_algorithms.py
+  3. python testing/test_limited_focused.py
+  4. python testing/final_intensive_test.py
+  
+  Result: ✓ Algorithms verified on 24 real benchmark instances
+
+For Full Analysis (2+ hours):
+  Run all tests including comprehensive_validator and intensive_test_suite
+
+════════════════════════════════════════════════════════════════════════════════
+INTERPRETING RESULTS
+════════════════════════════════════════════════════════════════════════════════
+
+What You Want to See:
+
+✓ All exact algorithms (BF, MEMO, TAB, SO) return IDENTICAL values
+  If different: Algorithm bug exists
+  If identical: All algorithms correct
+
+✓ Greedy results are LOWER than or EQUAL to exact algorithms
+  If greedy > exact: Algorithm bug
+  If greedy ≤ exact: Greedy working correctly
+
+✓ Gap calculations (Exact - Greedy) / Exact * 100 are non-negative
+  If negative: Error in gap calculation
+  If non-negative: Expected behavior
+
+✓ Greedy gap varies by problem type
+  Uncorrelated: Should be < 1%
+  Weakly Correlated: Should be < 1%
+  Strongly Correlated: Can be 0-5%
+
+✓ Runtimes follow complexity patterns
+  Brute Force: Exponential (slow on larger n)
+  DP: O(n*W) (medium speed)
+  Space-Optimised: O(n*W) (faster than DP)
+  Greedy: O(n log n) (very fast)
+
+════════════════════════════════════════════════════════════════════════════════
+TROUBLESHOOTING
+════════════════════════════════════════════════════════════════════════════════
+
+If test fails:
+
+1. Algorithms return different values
+   Issue: Algorithm bug or data inconsistency
+   Solution: Check parse_kp.py is using correct column order
+
+2. Greedy > Exact algorithm
+   Issue: Greedy algorithm bug
+   Solution: Verify greedy ratio calculation
+
+3. Timeout on large instances
+   Issue: Memory exceeded or computation too long
+   Solution: Expected behavior, tests auto-skip when needed
+
+4. Import errors
+   Issue: Missing module
+   Solution: Ensure src/ folder in Python path (tests add it automatically)
+
+5. File not found errors
+   Issue: testcases/ folder not in expected location
+   Solution: Run tests from project root directory
+
+════════════════════════════════════════════════════════════════════════════════
+DATA FILES AVAILABLE
+════════════════════════════════════════════════════════════════════════════════
+
+test_results.csv
+  Generated by: intensive_test_suite.py
+  Contains: Benchmark results from 100+ instances
+  Use for: Creating plots, detailed analysis, performance comparisons
+  Format: CSV with columns for instance, algorithms, timing, gaps
+
+════════════════════════════════════════════════════════════════════════════════
