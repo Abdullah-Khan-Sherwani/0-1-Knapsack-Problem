@@ -14,24 +14,26 @@ from src.parse_kp                   import parse_kp
 
 KPLIB_ROOT         = os.path.join(_ROOT, 'testcases', 'kplib')
 RESULTS_DIR        = os.path.join(_ROOT, 'results')
-INSTANCES_PER_LEAF = 3
-MAX_N              = 2000      # skip leaf folders with n > this
+INSTANCES_PER_LEAF = 1
+MAX_N              = 500
 
 # Skip thresholds — prevent OOM / multi-minute runs
-BF_MAX_N     = 20          # 2^20 ≈ 1M recursive calls
-MEMO_MAX_NW   = 15_000_000  # ~120 MB memo table
-TAB_MAX_NW    = 30_000_000  # ~240 MB dp table
-SPOPT_MAX_NW  = 50_000_000  # ~50M loop iterations
-FPTAS_EPSILON = 0.25        # approximation parameter: guarantees >= 0.75*OPT
-FPTAS_MAX_N2  = 4_000_000   # skip if n^2/eps > this (~n>1000 at eps=0.25)
+BF_MAX_N      = 25           # 2^25 ~ 33M calls, feasible
+MEMO_MAX_NW   = 15_000_000   # ~120 MB memo table
+TAB_MAX_NW    = 30_000_000   # ~240 MB dp table
+SPOPT_MAX_NW  = 50_000_000   # ~50M loop iterations
+FPTAS_EPSILON = 0.25         # guarantees >= 0.75 * OPT
+FPTAS_MAX_N2  = 4_000_000    # skip if n^2/eps > this
 
 FIELDNAMES = [
     'category', 'n_label', 'ratio', 'instance',
     'n', 'capacity', 'algorithm', 'runtime_ms', 'result', 'skipped',
 ]
 
+ALG_COL_WIDTH = 13  # for aligned per-row printing
 
-# ── Algorithm runners (named functions avoid closure issues) ──────────────────
+
+# ── Algorithm runners ─────────────────────────────────────────────────────────
 
 def _run_bf(n, capacity, values, weights):
     return knapsack_brute_force(capacity, n, values, weights)
@@ -75,11 +77,9 @@ ALGORITHMS = [
 # ── Path utilities ────────────────────────────────────────────────────────────
 
 def find_leaf_folders(root):
-    """Return all directories that directly contain .kp files, up to MAX_N items."""
     leaves = []
     for dirpath, dirnames, filenames in os.walk(root):
         if not dirnames and any(f.endswith('.kp') for f in filenames):
-            # n_label is the second-to-last path component, e.g. 'n02000'
             n_label = os.path.basename(os.path.dirname(dirpath))
             try:
                 n = int(n_label.lstrip('n'))
@@ -96,7 +96,6 @@ def get_instances(folder, count=INSTANCES_PER_LEAF):
 
 
 def parse_path(path):
-    """Extract (category, n_label, ratio, instance) from a .kp filepath."""
     parts = path.replace('\\', '/').split('/')
     return parts[-4], parts[-3], parts[-2], os.path.splitext(parts[-1])[0]
 
@@ -105,8 +104,7 @@ def parse_path(path):
 
 def run_benchmarks():
     if not os.path.isdir(KPLIB_ROOT):
-        print(f"[ERROR] kplib not found at:\n  {KPLIB_ROOT}\n"
-              f"Clone it with: git clone https://github.com/likr/kplib.git testcases/kplib")
+        print(f"[ERROR] kplib not found at:\n  {KPLIB_ROOT}")
         return None
 
     os.makedirs(RESULTS_DIR, exist_ok=True)
@@ -114,7 +112,17 @@ def run_benchmarks():
 
     leaves = find_leaf_folders(KPLIB_ROOT)
     total  = len(leaves)
-    print(f"Found {total} leaf folders — running first {INSTANCES_PER_LEAF} instances each.\n")
+    n_algs = len(ALGORITHMS)
+
+    print(f"{'='*65}")
+    print(f"  Knapsack Benchmark")
+    print(f"  {total} leaf folders x {INSTANCES_PER_LEAF} instance(s) x {n_algs} algorithms")
+    print(f"  MAX_N={MAX_N}  BF_MAX_N={BF_MAX_N}  FPTAS_eps={FPTAS_EPSILON}")
+    print(f"{'='*65}\n")
+
+    total_rows = 0
+    skipped_counts = {name: 0 for name, *_ in ALGORITHMS}
+    wall_start = time.perf_counter()
 
     with open(csv_path, 'w', newline='', encoding='utf-8') as fh:
         writer = csv.DictWriter(fh, fieldnames=FIELDNAMES)
@@ -123,13 +131,16 @@ def run_benchmarks():
         for idx, leaf in enumerate(leaves, 1):
             cat, n_lbl, ratio, _ = parse_path(leaf + '/x.kp')
             instances = get_instances(leaf)
-            print(f"[{idx:3d}/{total}] {cat}/{n_lbl}/{ratio}  "
-                  f"({len(instances)} instances)", flush=True)
+
+            print(f"[{idx:3d}/{total}] {cat}/{n_lbl}/{ratio}", flush=True)
 
             for fp in instances:
                 cat, n_lbl, ratio, inst = parse_path(fp)
                 n, capacity, values, weights = parse_kp(fp)
 
+                print(f"         {inst}  n={n}  W={capacity}", flush=True)
+
+                alg_results = {}
                 for alg_name, run_fn, should_skip in ALGORITHMS:
                     row = dict(
                         category=cat, n_label=n_lbl, ratio=ratio,
@@ -138,20 +149,51 @@ def run_benchmarks():
                     )
                     if should_skip(n, capacity):
                         row.update(runtime_ms=None, result=None, skipped=True)
+                        skipped_counts[alg_name] += 1
+                        print(f"           {alg_name:<{ALG_COL_WIDTH}} SKIP", flush=True)
                     else:
                         try:
                             t0  = time.perf_counter()
                             res = run_fn(n, capacity, values, weights)
                             ms  = (time.perf_counter() - t0) * 1000
-                            row.update(
-                                runtime_ms=round(ms, 4),
-                                result=res,
-                                skipped=False,
-                            )
+                            row.update(runtime_ms=round(ms, 4), result=res, skipped=False)
+                            alg_results[alg_name] = res
+                            print(f"           {alg_name:<{ALG_COL_WIDTH}} {ms:8.2f} ms   result={res}", flush=True)
                         except Exception as exc:
-                            print(f"    [WARN] {alg_name} on {os.path.basename(fp)}: {exc}")
                             row.update(runtime_ms=None, result=None, skipped=True)
-                    writer.writerow(row)
+                            skipped_counts[alg_name] += 1
+                            print(f"           {alg_name:<{ALG_COL_WIDTH}} ERROR: {exc}", flush=True)
 
-    print(f"\nResults saved to: {csv_path}")
+                    writer.writerow(row)
+                    total_rows += 1
+
+                # Consistency checks
+                exact = {k: v for k, v in alg_results.items()
+                         if k in ('BruteForce', 'Memoization', 'Tabulation', 'SpaceOptimised')}
+                if len(set(exact.values())) > 1:
+                    print(f"           [MISMATCH] exact algorithms disagree: {exact}", flush=True)
+
+                # Approximation bounds (only if we have an exact reference)
+                if exact:
+                    opt = next(iter(exact.values()))
+                    if 'Greedy' in alg_results:
+                        gr = alg_results['Greedy']
+                        if gr > opt:
+                            print(f"           [WARN] Greedy={gr} exceeds OPT={opt}", flush=True)
+                        elif gr < opt / 2:
+                            print(f"           [WARN] Greedy={gr} violates OPT/2 guarantee (OPT={opt})", flush=True)
+                    if 'FPTAS' in alg_results:
+                        ft = alg_results['FPTAS']
+                        floor = (1 - FPTAS_EPSILON) * opt
+                        if ft > opt:
+                            print(f"           [WARN] FPTAS={ft} exceeds OPT={opt}", flush=True)
+                        elif ft < floor - 1:
+                            print(f"           [WARN] FPTAS={ft} violates {1-FPTAS_EPSILON:.0%} guarantee (floor={floor:.0f}, OPT={opt})", flush=True)
+
+    elapsed = time.perf_counter() - wall_start
+    print(f"\n{'='*65}")
+    print(f"  Done in {elapsed:.1f}s   {total_rows} rows written")
+    print(f"  Skip counts: { {k: v for k, v in skipped_counts.items() if v > 0} }")
+    print(f"  Results: {csv_path}")
+    print(f"{'='*65}")
     return csv_path

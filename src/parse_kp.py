@@ -7,6 +7,6 @@ def parse_kp(filepath):
     weights, values = [], []
     for ln in lines[2 : n + 2]:
         parts = ln.split()
-        weights.append(int(parts[0]))
-        values.append(int(parts[1]))
+        values.append(int(parts[0]))   # p_i = profit/value (first column per kplib README)
+        weights.append(int(parts[1]))  # w_i = weight (second column)
     return n, capacity, values, weights

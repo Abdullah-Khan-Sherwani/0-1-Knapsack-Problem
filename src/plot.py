@@ -11,8 +11,9 @@ ALG_COLORS = {
     'Tabulation':     '#2ecc71',
     'SpaceOptimised': '#f39c12',
     'Greedy':         '#9b59b6',
+    'FPTAS':          '#1abc9c',
 }
-ALG_ORDER = ['BruteForce', 'Memoization', 'Tabulation', 'SpaceOptimised', 'Greedy']
+ALG_ORDER = ['BruteForce', 'Memoization', 'Tabulation', 'SpaceOptimised', 'Greedy', 'FPTAS']
 
 
 def _save(fig, name):
@@ -132,35 +133,43 @@ def plot_greedy_ratio(df):
     optimal = (dp.groupby(['category', 'n_label', 'ratio', 'instance'])['result']
                  .max().reset_index().rename(columns={'result': 'optimal'}))
 
-    greedy = (df[df['algorithm'] == 'Greedy']
-              [['category', 'n_label', 'ratio', 'instance', 'result']]
-              .rename(columns={'result': 'greedy_result'}))
+    key = ['category', 'n_label', 'ratio', 'instance']
+    approx_algs = [
+        ('Greedy', '#3498db', 'Greedy (OPT/2 guarantee)'),
+        ('FPTAS',  ALG_COLORS['FPTAS'], 'FPTAS (75% guarantee)'),
+    ]
 
-    merged = greedy.merge(optimal, on=['category', 'n_label', 'ratio', 'instance'])
-    merged = merged[merged['optimal'] > 0].copy()
-    merged['approx_ratio'] = merged['greedy_result'] / merged['optimal']
-    merged['cat_short']    = merged['category'].str[2:].str.replace(r'(?<=[a-z])(?=[A-Z])', ' ', regex=True).str[:20]
+    fig, axes = plt.subplots(1, 2, figsize=(16, 6), sharey=True)
 
-    cats = sorted(merged['cat_short'].unique())
-    data = [merged[merged['cat_short'] == c]['approx_ratio'].dropna().values for c in cats]
+    for ax, (alg_name, color, label) in zip(axes, approx_algs):
+        sub = (df[df['algorithm'] == alg_name][key + ['result']]
+               .rename(columns={'result': 'approx_result'}))
+        merged = sub.merge(optimal, on=key)
+        merged = merged[merged['optimal'] > 0].copy()
+        merged['approx_ratio'] = merged['approx_result'] / merged['optimal']
+        merged['cat_short']    = merged['category'].str[2:].str[:18]
 
-    fig, ax = plt.subplots(figsize=(14, 6))
-    bp = ax.boxplot(data, patch_artist=True, labels=cats,
-                    medianprops=dict(color='black', linewidth=2))
-    for patch in bp['boxes']:
-        patch.set_facecolor('#3498db')
-        patch.set_alpha(0.6)
+        cats = sorted(merged['cat_short'].unique())
+        data = [merged[merged['cat_short'] == c]['approx_ratio'].dropna().values for c in cats]
 
-    ax.axhline(1.0, color='red', linestyle='--', linewidth=1.5, label='Optimal (ratio = 1.0)')
-    ax.set_xlabel('Instance Category', fontsize=12)
-    ax.set_ylabel('Greedy Result / Optimal DP Result', fontsize=12)
-    ax.set_title('Greedy Approximation Quality by Instance Category', fontsize=14, fontweight='bold')
-    ax.tick_params(axis='x', rotation=45)
-    ax.legend(fontsize=10)
-    ax.set_ylim(0, 1.12)
-    ax.grid(True, axis='y', alpha=0.3)
+        bp = ax.boxplot(data, patch_artist=True, labels=cats,
+                        medianprops=dict(color='black', linewidth=2))
+        for patch in bp['boxes']:
+            patch.set_facecolor(color)
+            patch.set_alpha(0.6)
+
+        ax.axhline(1.0, color='red', linestyle='--', linewidth=1.5, label='Optimal')
+        ax.set_xlabel('Instance Category', fontsize=11)
+        ax.set_title(label, fontsize=13, fontweight='bold')
+        ax.tick_params(axis='x', rotation=45)
+        ax.legend(fontsize=9)
+        ax.set_ylim(0, 1.12)
+        ax.grid(True, axis='y', alpha=0.3)
+
+    axes[0].set_ylabel('Approximation Result / Optimal', fontsize=12)
+    fig.suptitle('Approximation Quality by Instance Category', fontsize=14, fontweight='bold')
     fig.tight_layout()
-    _save(fig, 'fig4_greedy_approx_ratio.png')
+    _save(fig, 'fig4_approx_ratio.png')
 
 
 # ── Fig 5: Runtime heatmap — categories × sizes ───────────────────────────────
@@ -203,7 +212,7 @@ def plot_heatmap(df):
 def plot_theoretical_vs_empirical(df):
     import matplotlib.pyplot as plt
 
-    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+    fig, axes = plt.subplots(1, 3, figsize=(18, 6))
 
     # Left — DP empirical with fitted power-law overlay
     ax = axes[0]
@@ -252,6 +261,29 @@ def plot_theoretical_vs_empirical(df):
     ax2.set_title('Greedy — Empirical vs O(n log n)', fontsize=13, fontweight='bold')
     ax2.legend(fontsize=9); ax2.grid(True, which='both', alpha=0.3)
 
+    # Right — FPTAS with O(n^2/eps) overlay
+    ax3 = axes[2]
+    sub = df[df['algorithm'] == 'FPTAS']
+    if not sub.empty:
+        g = sub.groupby('n')['runtime_ms'].median().reset_index()
+        ax3.plot(g['n'], g['runtime_ms'], marker='^',
+                 label='FPTAS (empirical)', color=ALG_COLORS['FPTAS'],
+                 linewidth=2, markersize=5)
+
+        ns_arr = g['n'].values.astype(float)
+        if len(ns_arr) >= 2:
+            mid    = len(ns_arr) // 2
+            ref_n  = ns_arr[mid]
+            ref_ms = g['runtime_ms'].values[mid]
+            theory = ref_ms * (ns_arr / ref_n) ** 2
+            ax3.plot(ns_arr, theory, 'k--', alpha=0.5, linewidth=1.5,
+                     label='O(n^2/eps) theoretical')
+
+    ax3.set_xscale('log'); ax3.set_yscale('log')
+    ax3.set_xlabel('n', fontsize=12); ax3.set_ylabel('Runtime (ms)', fontsize=12)
+    ax3.set_title('FPTAS — Empirical vs O(n^2/eps)', fontsize=13, fontweight='bold')
+    ax3.legend(fontsize=9); ax3.grid(True, which='both', alpha=0.3)
+
     fig.suptitle('Theoretical vs Empirical Runtime', fontsize=14, fontweight='bold')
     fig.tight_layout()
     _save(fig, 'fig6_theoretical_vs_empirical.png')
@@ -263,7 +295,7 @@ def plot_capacity_ratio_impact(df):
     import matplotlib.pyplot as plt
 
     fig, axes = plt.subplots(1, 2, figsize=(14, 6), sharey=True)
-    dp_algs   = ['Tabulation', 'SpaceOptimised']
+    dp_algs   = ['Tabulation', 'SpaceOptimised', 'FPTAS']
 
     for ax, ratio_val in zip(axes, ['R01000', 'R10000']):
         sub = df[(df['ratio'] == ratio_val) & (df['algorithm'].isin(dp_algs))]
@@ -281,7 +313,7 @@ def plot_capacity_ratio_impact(df):
         ax.legend(fontsize=9); ax.grid(True, which='both', alpha=0.3)
 
     axes[0].set_ylabel('Runtime (ms, median)', fontsize=12)
-    fig.suptitle('DP Runtime: Low Capacity (R01000) vs High Capacity (R10000)',
+    fig.suptitle('DP & FPTAS Runtime: Low Capacity (R01000) vs High Capacity (R10000)',
                  fontsize=14, fontweight='bold')
     fig.tight_layout()
     _save(fig, 'fig7_capacity_ratio_impact.png')
