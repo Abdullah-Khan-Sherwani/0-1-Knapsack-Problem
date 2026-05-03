@@ -9,17 +9,21 @@ from src.algorithms.memoization     import knapsack_memoization
 from src.algorithms.tabulation      import knapsack_tabulation
 from src.algorithms.space_optimised import knapsack_space_optimised
 from src.algorithms.greedy          import knapsack_greedy
+from src.algorithms.fptas           import knapsack_fptas
 from src.parse_kp                   import parse_kp
 
 KPLIB_ROOT         = os.path.join(_ROOT, 'testcases', 'kplib')
 RESULTS_DIR        = os.path.join(_ROOT, 'results')
-INSTANCES_PER_LEAF = 5
+INSTANCES_PER_LEAF = 3
+MAX_N              = 2000      # skip leaf folders with n > this
 
 # Skip thresholds — prevent OOM / multi-minute runs
 BF_MAX_N     = 20          # 2^20 ≈ 1M recursive calls
-MEMO_MAX_NW  = 15_000_000  # ~120 MB memo table
-TAB_MAX_NW   = 30_000_000  # ~240 MB dp table
-SPOPT_MAX_NW = 50_000_000  # ~50M loop iterations
+MEMO_MAX_NW   = 15_000_000  # ~120 MB memo table
+TAB_MAX_NW    = 30_000_000  # ~240 MB dp table
+SPOPT_MAX_NW  = 50_000_000  # ~50M loop iterations
+FPTAS_EPSILON = 0.25        # approximation parameter: guarantees >= 0.75*OPT
+FPTAS_MAX_N2  = 4_000_000   # skip if n^2/eps > this (~n>1000 at eps=0.25)
 
 FIELDNAMES = [
     'category', 'n_label', 'ratio', 'instance',
@@ -54,23 +58,35 @@ def _run_greedy(n, capacity, values, weights):
     return knapsack_greedy(capacity, values, weights)
 
 
+def _run_fptas(n, capacity, values, weights):
+    return knapsack_fptas(capacity, values, weights, epsilon=FPTAS_EPSILON)
+
+
 ALGORITHMS = [
     ('BruteForce',     _run_bf,     lambda n, W: n > BF_MAX_N),
     ('Memoization',    _run_memo,   lambda n, W: n * W > MEMO_MAX_NW),
     ('Tabulation',     _run_tab,    lambda n, W: n * W > TAB_MAX_NW),
     ('SpaceOptimised', _run_spopt,  lambda n, W: n * W > SPOPT_MAX_NW),
     ('Greedy',         _run_greedy, lambda n, W: False),
+    ('FPTAS',          _run_fptas,  lambda n, W: (n * n / FPTAS_EPSILON) > FPTAS_MAX_N2),
 ]
 
 
 # ── Path utilities ────────────────────────────────────────────────────────────
 
 def find_leaf_folders(root):
-    """Return all directories that directly contain .kp files."""
+    """Return all directories that directly contain .kp files, up to MAX_N items."""
     leaves = []
     for dirpath, dirnames, filenames in os.walk(root):
         if not dirnames and any(f.endswith('.kp') for f in filenames):
-            leaves.append(dirpath)
+            # n_label is the second-to-last path component, e.g. 'n02000'
+            n_label = os.path.basename(os.path.dirname(dirpath))
+            try:
+                n = int(n_label.lstrip('n'))
+            except ValueError:
+                n = 0
+            if n <= MAX_N:
+                leaves.append(dirpath)
     return sorted(leaves)
 
 
@@ -100,7 +116,7 @@ def run_benchmarks():
     total  = len(leaves)
     print(f"Found {total} leaf folders — running first {INSTANCES_PER_LEAF} instances each.\n")
 
-    with open(csv_path, 'w', newline='') as fh:
+    with open(csv_path, 'w', newline='', encoding='utf-8') as fh:
         writer = csv.DictWriter(fh, fieldnames=FIELDNAMES)
         writer.writeheader()
 
