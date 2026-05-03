@@ -21,7 +21,7 @@ MAX_N              = 500
 BF_MAX_N      = 25           # 2^25 ~ 33M calls, feasible
 MEMO_MAX_NW   = 15_000_000   # ~120 MB memo table
 TAB_MAX_NW    = 30_000_000   # ~240 MB dp table
-SPOPT_MAX_NW  = 50_000_000   # ~50M loop iterations
+SPOPT_MAX_W   = 2_000_000    # SpaceOpt uses O(W) memory — skip on W alone
 FPTAS_EPSILON = 0.25         # guarantees >= 0.75 * OPT
 FPTAS_MAX_N2  = 4_000_000    # skip if n^2/eps > this
 
@@ -29,9 +29,6 @@ FIELDNAMES = [
     'category', 'n_label', 'ratio', 'instance',
     'n', 'capacity', 'algorithm', 'runtime_ms', 'result', 'skipped',
 ]
-
-ALG_COL_WIDTH = 13  # for aligned per-row printing
-
 
 # ── Algorithm runners ─────────────────────────────────────────────────────────
 
@@ -68,7 +65,7 @@ ALGORITHMS = [
     ('BruteForce',     _run_bf,     lambda n, W: n > BF_MAX_N),
     ('Memoization',    _run_memo,   lambda n, W: n * W > MEMO_MAX_NW),
     ('Tabulation',     _run_tab,    lambda n, W: n * W > TAB_MAX_NW),
-    ('SpaceOptimised', _run_spopt,  lambda n, W: n * W > SPOPT_MAX_NW),
+    ('SpaceOptimised', _run_spopt,  lambda n, W: W > SPOPT_MAX_W),
     ('Greedy',         _run_greedy, lambda n, W: False),
     ('FPTAS',          _run_fptas,  lambda n, W: (n * n / FPTAS_EPSILON) > FPTAS_MAX_N2),
 ]
@@ -90,8 +87,9 @@ def find_leaf_folders(root):
     return sorted(leaves)
 
 
-def get_instances(folder, count=INSTANCES_PER_LEAF):
+def get_instances(folder):
     files = sorted(f for f in os.listdir(folder) if f.endswith('.kp'))
+    count = 3 if '13Synthetic' in folder else INSTANCES_PER_LEAF
     return [os.path.join(folder, f) for f in files[:count]]
 
 
@@ -150,7 +148,7 @@ def run_benchmarks():
                     if should_skip(n, capacity):
                         row.update(runtime_ms=None, result=None, skipped=True)
                         skipped_counts[alg_name] += 1
-                        print(f"           {alg_name:<{ALG_COL_WIDTH}} SKIP", flush=True)
+                        print(f"           {alg_name:<{13}} SKIP", flush=True)
                     else:
                         try:
                             t0  = time.perf_counter()
@@ -158,11 +156,11 @@ def run_benchmarks():
                             ms  = (time.perf_counter() - t0) * 1000
                             row.update(runtime_ms=round(ms, 4), result=res, skipped=False)
                             alg_results[alg_name] = res
-                            print(f"           {alg_name:<{ALG_COL_WIDTH}} {ms:8.2f} ms   result={res}", flush=True)
+                            print(f"           {alg_name:<{13}} {ms:8.2f} ms   result={res}", flush=True)
                         except Exception as exc:
                             row.update(runtime_ms=None, result=None, skipped=True)
                             skipped_counts[alg_name] += 1
-                            print(f"           {alg_name:<{ALG_COL_WIDTH}} ERROR: {exc}", flush=True)
+                            print(f"           {alg_name:<{13}} ERROR: {exc}", flush=True)
 
                     writer.writerow(row)
                     total_rows += 1

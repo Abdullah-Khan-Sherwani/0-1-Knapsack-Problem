@@ -1,7 +1,7 @@
 import os, random
 
 KPLIB = os.path.join('testcases', 'kplib')
-SIZES = [10, 15, 25]
+SIZES = [5, 8, 10, 12, 15, 18, 20, 22, 25]
 SEEDS = [0, 1, 2]
 CATEGORY = '13Synthetic'
 RATIO    = 'R01000'
