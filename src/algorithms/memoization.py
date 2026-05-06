@@ -3,13 +3,17 @@ def knapsack_memoization(capacity, n, values, weights, memo):
         return memo[n][capacity]
 
     if n == 0 or capacity == 0:
-        result = 0
+        result = (0, [])
     elif weights[n - 1] > capacity:
         result = knapsack_memoization(capacity, n - 1, values, weights, memo)
     else:
-        include_item = values[n - 1] + knapsack_memoization(capacity - weights[n - 1], n - 1, values, weights, memo)
-        exclude_item = knapsack_memoization(capacity, n - 1, values, weights, memo)
-        result = max(include_item, exclude_item)
+        inc_val, inc_items = knapsack_memoization(capacity - weights[n - 1], n - 1, values, weights, memo)
+        inc_val += values[n - 1]
+        exc_val, exc_items = knapsack_memoization(capacity, n - 1, values, weights, memo)
+        if inc_val >= exc_val:
+            result = (inc_val, inc_items + [n - 1])
+        else:
+            result = (exc_val, exc_items)
 
     memo[n][capacity] = result
     return result
@@ -21,4 +25,7 @@ if __name__ == "__main__":
     capacity = 50
     n        = len(values)
     memo     = [[None] * (capacity + 1) for _ in range(n + 1)]
-    print("Maximum value in Knapsack =", knapsack_memoization(capacity, n, values, weights, memo))
+    max_val, items = knapsack_memoization(capacity, n, values, weights, memo)
+    print("Maximum value in Knapsack =", max_val)
+    print("Items included (0-indexed):", sorted(items))
+    print("Total Weight              :", sum(weights[i] for i in items))

@@ -25,18 +25,18 @@ def test_case(name, values, weights, capacity, expected_optimal):
     failed = []
 
     # Brute Force
-    bf = knapsack_brute_force(capacity, n, values, weights)
+    bf, bf_items = knapsack_brute_force(capacity, n, values, weights)
     results['BruteForce'] = bf
     ok = bf == expected_optimal
-    print(f"Brute Force         : {bf:<6}  {'PASS' if ok else 'FAIL'}")
+    print(f"Brute Force         : {bf:<6}  items={sorted(bf_items)}  {'PASS' if ok else 'FAIL'}")
     if not ok: failed.append('BruteForce')
 
     # Memoization
     memo = [[None] * (capacity + 1) for _ in range(n + 1)]
-    mem = knapsack_memoization(capacity, n, values, weights, memo)
+    mem, mem_items = knapsack_memoization(capacity, n, values, weights, memo)
     results['Memoization'] = mem
     ok = mem == expected_optimal
-    print(f"Memoization         : {mem:<6}  {'PASS' if ok else 'FAIL'}")
+    print(f"Memoization         : {mem:<6}  items={sorted(mem_items)}  {'PASS' if ok else 'FAIL'}")
     if not ok: failed.append('Memoization')
 
     # Tabulation
@@ -55,11 +55,11 @@ def test_case(name, values, weights, capacity, expected_optimal):
     if not ok: failed.append('SpaceOpt')
 
     # Greedy — check OPT/2 guarantee
-    gr = knapsack_greedy(capacity, values, weights)
+    gr, gr_items = knapsack_greedy(capacity, values, weights)
     results['Greedy'] = gr
     gap = ((expected_optimal - gr) / expected_optimal * 100) if expected_optimal > 0 else 0
     opt2_ok = gr >= expected_optimal / 2
-    print(f"Greedy (wiki S2)    : {gr:<6}  gap={gap:.1f}%  OPT/2 guarantee={'PASS' if opt2_ok else 'FAIL'}")
+    print(f"Greedy (wiki S2)    : {gr:<6}  items={gr_items}  gap={gap:.1f}%  OPT/2 guarantee={'PASS' if opt2_ok else 'FAIL'}")
     if not opt2_ok: failed.append('Greedy-OPT/2')
 
     # FPTAS — check (1-eps)*OPT guarantee

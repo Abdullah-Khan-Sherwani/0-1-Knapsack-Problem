@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html { background: #ffffff; }
+body {
+  width: 720pt; height: 405pt; margin: 0; padding: 0;
+  background: #F4F6F6; font-family: Arial, sans-serif;
+  display: flex; flex-direction: column;
+}
+.header-bar { background: #1A5490; height: 8pt; width: 100%; }
+.content { flex: 1; padding: 22pt 36pt 14pt 36pt; }
+h1 { color: #1C2833; font-size: 26pt; margin: 0 0 14pt 0; }
+.formal {
+  background: #FFFFFF; border-left: 6pt solid #1A5490;
+  padding: 14pt 20pt; margin-bottom: 16pt;
+}
+.formal p { color: #1C2833; font-size: 13pt; margin: 4pt 0; line-height: 1.5; }
+.formal .math { font-family: 'Courier New', monospace; font-size: 14pt; color: #1A5490; }
+ul { color: #1C2833; font-size: 13pt; line-height: 1.55; margin: 0; padding-left: 20pt; }
+li { margin-bottom: 5pt; }
+.footer { background: #1A5490; padding: 6pt 36pt; display: flex; justify-content: space-between; }
+.footer p { color: #FFFFFF; font-size: 10pt; margin: 0; }
+</style>
+</head>
+<body>
+  <div class="header-bar"></div>
+  <div class="content">
+    <h1>Problem Statement</h1>
+    <div class="formal">
+      <p><b>Given:</b> n items, each with value v<sub>i</sub> and weight w<sub>i</sub>, and a knapsack of capacity W.</p>
+      <p><b>Find:</b> a subset S ⊆ {1, ..., n} that</p>
+      <p class="math">&nbsp;&nbsp;&nbsp;maximises&nbsp;&nbsp;Σ v<sub>i</sub> · x<sub>i</sub>&nbsp;&nbsp;subject to&nbsp;&nbsp;Σ w<sub>i</sub> · x<sub>i</sub> ≤ W,&nbsp;&nbsp;x<sub>i</sub> ∈ {0, 1}</p>
+    </div>
+    <ul>
+      <li><b>0/1</b> means each item is either taken whole or skipped — no fractions.</li>
+      <li>NP-hard, but admits a <b>pseudo-polynomial</b> O(nW) DP because W is bounded.</li>
+      <li>The problem has been studied since 1957 (Dantzig); still actively used today.</li>
+    </ul>
+  </div>
+  <div class="footer"><p>0/1 Knapsack — Empirical Comparison</p><p>2 / 15</p></div>
+</body>
+</html>

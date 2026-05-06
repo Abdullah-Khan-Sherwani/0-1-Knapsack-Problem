@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html { background: #ffffff; }
+body {
+  width: 720pt; height: 405pt; margin: 0; padding: 0;
+  background: #F4F6F6; font-family: Arial, sans-serif;
+  display: flex; flex-direction: column;
+}
+.header-bar { background: #f39c12; height: 8pt; width: 100%; }
+.content { flex: 1; padding: 14pt 30pt 8pt 30pt; }
+.tag { display: inline-block; background: #f39c12; color: #FFFFFF; font-size: 9pt;
+       padding: 2pt 8pt; border-radius: 3pt; margin-bottom: 6pt; letter-spacing: 1pt; }
+.tag p { margin: 0; color: #FFFFFF; font-size: 9pt; }
+h1 { color: #1C2833; font-size: 22pt; margin: 0 0 10pt 0; }
+.row { display: flex; gap: 12pt; }
+.left { flex: 1.2; }
+.right { flex: 1; background: #1C2833; padding: 10pt 14pt; }
+.left h3 { color: #B9770E; font-size: 12pt; margin: 0 0 3pt 0; }
+.left p, .left li { color: #1C2833; font-size: 11pt; line-height: 1.4; }
+.left ul { margin: 0 0 6pt 0; padding-left: 16pt; }
+.right h3 { color: #FFFFFF; font-size: 11pt; margin: 0 0 5pt 0; }
+.right p { color: #ECF0F1; font-size: 10pt; margin: 0 0 5pt 0; line-height: 1.35; font-family: 'Courier New', monospace; }
+.right .ok { color: #2ECC71; }
+.right .warn { color: #F39C12; }
+.complexity { background: #FEF5E7; padding: 6pt 10pt; margin: 6pt 0; }
+.complexity p { color: #B9770E; font-size: 11pt; margin: 0; font-family: 'Courier New', monospace; }
+.footer { background: #f39c12; padding: 6pt 36pt; display: flex; justify-content: space-between; }
+.footer p { color: #FFFFFF; font-size: 10pt; margin: 0; }
+</style>
+</head>
+<body>
+  <div class="header-bar"></div>
+  <div class="content">
+    <span class="tag"><p>EXACT — SPACE-OPTIMISED DP</p></span>
+    <h1>4. Space-Optimised DP</h1>
+    <div class="row">
+      <div class="left">
+        <h3>How it works</h3>
+        <p>Tabulation only ever reads row i−1 to compute row i, so we keep <b>just one 1-D array dp[w]</b>. Iterate w from W down to weights[i] so we don't overwrite values still needed.</p>
+        <div class="complexity"><p>Time: O(n · W) &nbsp;&nbsp;|&nbsp;&nbsp; Space: O(W)</p></div>
+        <h3>Pros</h3>
+        <ul><li>Same speed as tabulation but huge memory win — only one row.</li>
+            <li>Best choice when W is large but per-instance memory matters.</li></ul>
+        <h3>Cons</h3>
+        <ul><li><b>Cannot recover the item set</b> from a single row — that information is lost.</li>
+            <li>Still pseudo-polynomial in W.</li></ul>
+      </div>
+      <div class="right">
+        <h3>Why "value only"?</h3>
+        <p>The 1-D rolling array discards the history needed to reconstruct which items were chosen.</p>
+        <p>To recover items you'd need a parent table — defeating the space win.</p>
+        <p class="ok">value = 220</p>
+        <p class="warn">items = (not recoverable)</p>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><p>0/1 Knapsack — Empirical Comparison</p><p>8 / 15</p></div>
+</body>
+</html>

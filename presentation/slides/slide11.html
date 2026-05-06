@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html { background: #ffffff; }
+body {
+  width: 720pt; height: 405pt; margin: 0; padding: 0;
+  background: #F4F6F6; font-family: Arial, sans-serif;
+  display: flex; flex-direction: column;
+}
+.header-bar { background: #1A5490; height: 8pt; width: 100%; }
+.content { flex: 1; padding: 22pt 36pt 12pt 36pt; }
+h1 { color: #1C2833; font-size: 26pt; margin: 0 0 6pt 0; }
+.subtitle { color: #566573; font-size: 13pt; margin: 0 0 14pt 0; }
+table { width: 100%; border-collapse: collapse; background: #FFFFFF;
+        box-shadow: 1px 1px 4px rgba(0,0,0,0.06); }
+th { background: #1A5490; color: #FFFFFF; font-size: 12pt; padding: 9pt 10pt; text-align: left; }
+td { padding: 8pt 10pt; font-size: 12pt; color: #1C2833; border-bottom: 1px solid #E5E8E8; }
+td.algo { font-weight: bold; }
+td.bf      { color: #B03A2E; }
+td.memo    { color: #1F618D; }
+td.tab     { color: #239B56; }
+td.spopt   { color: #B9770E; }
+td.greedy  { color: #6C3483; }
+td.fptas   { color: #117A65; }
+td.mono { font-family: 'Courier New', monospace; font-size: 11pt; }
+.note { margin-top: 10pt; background: #2E4053; padding: 9pt 16pt; }
+.note p { color: #F4F6F6; font-size: 11pt; margin: 0; line-height: 1.4; }
+.footer { background: #1A5490; padding: 6pt 36pt; display: flex; justify-content: space-between; }
+.footer p { color: #FFFFFF; font-size: 10pt; margin: 0; }
+</style>
+</head>
+<body>
+  <div class="header-bar"></div>
+  <div class="content">
+    <h1>Theoretical Complexity — Side-by-Side</h1>
+    <p class="subtitle">Time and space bounds with the guarantee each algorithm offers.</p>
+    <table>
+      <tr><th>Algorithm</th><th>Time</th><th>Space</th><th>Optimality</th><th>When to Pick</th></tr>
+      <tr><td class="algo bf">Brute Force</td><td class="mono">O(2ⁿ)</td><td class="mono">O(n)</td><td>Exact</td><td>Tiny n; verifying other algorithms</td></tr>
+      <tr><td class="algo memo">Memoization</td><td class="mono">O(n·W)</td><td class="mono">O(n·W)</td><td>Exact</td><td>When recursive form is most natural</td></tr>
+      <tr><td class="algo tab">Tabulation</td><td class="mono">O(n·W)</td><td class="mono">O(n·W)</td><td>Exact</td><td>Need item set; fastest exact in practice</td></tr>
+      <tr><td class="algo spopt">Space-Optimised</td><td class="mono">O(n·W)</td><td class="mono">O(W)</td><td>Exact (value only)</td><td>Memory-bound, item set not needed</td></tr>
+      <tr><td class="algo greedy">Greedy</td><td class="mono">O(n log n)</td><td class="mono">O(n)</td><td>≥ OPT / 2</td><td>Huge n or huge W; speed critical</td></tr>
+      <tr><td class="algo fptas">FPTAS</td><td class="mono">O(n³/ε)</td><td class="mono">O(n²/ε)</td><td>≥ (1−ε) · OPT</td><td>Need a tunable, provable bound</td></tr>
+    </table>
+    <div class="note">
+      <p><b>Key insight:</b> O(n·W) is <i>pseudo-polynomial</i>. Doubling W doubles the work even though the input only grew by 1 bit. That's why DP is slow when values/weights are large.</p>
+    </div>
+  </div>
+  <div class="footer"><p>0/1 Knapsack — Empirical Comparison</p><p>11 / 15</p></div>
+</body>
+</html>

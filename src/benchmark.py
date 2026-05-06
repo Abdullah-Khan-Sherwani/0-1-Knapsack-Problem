@@ -33,14 +33,14 @@ FIELDNAMES = [
 # ── Algorithm runners ─────────────────────────────────────────────────────────
 
 def _run_bf(n, capacity, values, weights):
-    return knapsack_brute_force(capacity, n, values, weights)
+    return knapsack_brute_force(capacity, n, values, weights)[0]
 
 
 def _run_memo(n, capacity, values, weights):
     old = sys.getrecursionlimit()
     sys.setrecursionlimit(max(old, n * 3 + 200))
     memo   = [[None] * (capacity + 1) for _ in range(n + 1)]
-    result = knapsack_memoization(capacity, n, values, weights, memo)
+    result = knapsack_memoization(capacity, n, values, weights, memo)[0]
     sys.setrecursionlimit(old)
     return result
 
@@ -54,7 +54,7 @@ def _run_spopt(n, capacity, values, weights):
 
 
 def _run_greedy(n, capacity, values, weights):
-    return knapsack_greedy(capacity, values, weights)
+    return knapsack_greedy(capacity, values, weights)[0]
 
 
 def _run_fptas(n, capacity, values, weights):

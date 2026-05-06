@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html { background: #ffffff; }
+body {
+  width: 720pt; height: 405pt; margin: 0; padding: 0;
+  background: #F4F6F6; font-family: Arial, sans-serif;
+  display: flex; flex-direction: column;
+}
+.header-bar { background: #1abc9c; height: 8pt; width: 100%; }
+.content { flex: 1; padding: 14pt 30pt 8pt 30pt; }
+.tag { display: inline-block; background: #1abc9c; color: #FFFFFF; font-size: 9pt;
+       padding: 2pt 8pt; border-radius: 3pt; margin-bottom: 6pt; letter-spacing: 1pt; }
+.tag p { margin: 0; color: #FFFFFF; font-size: 9pt; }
+h1 { color: #1C2833; font-size: 21pt; margin: 0 0 10pt 0; }
+.row { display: flex; gap: 12pt; }
+.left { flex: 1.2; }
+.right { flex: 1; background: #1C2833; padding: 10pt 14pt; }
+.left h3 { color: #117A65; font-size: 12pt; margin: 0 0 3pt 0; }
+.left p, .left li { color: #1C2833; font-size: 11pt; line-height: 1.4; }
+.left ul { margin: 0 0 6pt 0; padding-left: 16pt; }
+.right h3 { color: #FFFFFF; font-size: 11pt; margin: 0 0 5pt 0; }
+.right p { color: #ECF0F1; font-size: 10pt; margin: 0 0 5pt 0; line-height: 1.35; font-family: 'Courier New', monospace; }
+.right .ok { color: #2ECC71; }
+.complexity { background: #E8F8F5; padding: 6pt 10pt; margin: 6pt 0; }
+.complexity p { color: #117A65; font-size: 11pt; margin: 0; font-family: 'Courier New', monospace; }
+.footer { background: #1abc9c; padding: 6pt 36pt; display: flex; justify-content: space-between; }
+.footer p { color: #FFFFFF; font-size: 10pt; margin: 0; }
+</style>
+</head>
+<body>
+  <div class="header-bar"></div>
+  <div class="content">
+    <span class="tag"><p>APPROXIMATION</p></span>
+    <h1>6. FPTAS — Fully Polynomial-Time Approximation Scheme</h1>
+    <div class="row">
+      <div class="left">
+        <h3>How it works</h3>
+        <p>Pick ε ∈ (0, 1). Scale all values by K = εP/n where P = max value. Round to integers, then run a <b>profit-indexed</b> DP: dp[p] = min weight to achieve scaled profit p. Largest feasible p gives the answer.</p>
+        <div class="complexity"><p>Time: O(n³ / ε) &nbsp;&nbsp;|&nbsp;&nbsp; Space: O(n² / ε) &nbsp;&nbsp;|&nbsp;&nbsp; Guarantee: ≥ (1−ε) · OPT</p></div>
+        <h3>Pros</h3>
+        <ul><li><b>Tunable</b> — pick any ε, get a guarantee proportional to it.</li>
+            <li>Polynomial in n and 1/ε — beats DP when W is huge but values are small.</li></ul>
+        <h3>Cons</h3>
+        <ul><li>Slower than greedy; harder to implement than DP.</li>
+            <li>Like SpaceOpt, item set hard to recover from a 1-D profit array.</li></ul>
+      </div>
+      <div class="right">
+        <h3>Output on baseline (ε = 0.25)</h3>
+        <p class="ok">value = 220</p>
+        <p>guarantee = 75% × OPT = 165</p>
+        <p>actual = 100% (exact!)</p>
+        <p>For ε=0.25, in practice we typically see 95%+ of OPT.</p>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><p>0/1 Knapsack — Empirical Comparison</p><p>10 / 15</p></div>
+</body>
+</html>

@@ -27,26 +27,30 @@ def run_demo():
 
     memo = [[None] * (capacity + 1) for _ in range(n + 1)]
 
+    # Each entry returns either (value, items) or just value (for SpaceOpt / FPTAS).
     approaches = [
-        ("Brute Force",     lambda: knapsack_brute_force(capacity, n, values, weights)),
-        ("Memoization",     lambda: knapsack_memoization(capacity, n, values, weights, memo)),
-        ("Tabulation",      lambda: knapsack_tabulation(capacity, values, weights)[0]),
-        ("Space-Optimised", lambda: knapsack_space_optimised(values, weights, n, capacity)),
-        ("Greedy Approx.",  lambda: knapsack_greedy(capacity, values, weights)),
+        ("Brute Force",     lambda: knapsack_brute_force(capacity, n, values, weights),         True),
+        ("Memoization",     lambda: knapsack_memoization(capacity, n, values, weights, memo),   True),
+        ("Tabulation",      lambda: knapsack_tabulation(capacity, values, weights),             True),
+        ("Space-Optimised", lambda: knapsack_space_optimised(values, weights, n, capacity),     False),
+        ("Greedy Approx.",  lambda: knapsack_greedy(capacity, values, weights),                 True),
     ]
 
-    for name, func in approaches:
-        start  = time.perf_counter()
-        result = func()
-        end    = time.perf_counter()
-        print(f"{name:<20}: Max Value = {result}  | Time = {(end - start) * 1e6:.2f} µs")
+    print(f"{'Algorithm':<18} {'Value':>6}  {'Items (0-idx)':<22} {'Time':>10}")
+    print("-" * 60)
+    for name, func, returns_items in approaches:
+        start = time.perf_counter()
+        out   = func()
+        end   = time.perf_counter()
+        if returns_items:
+            value, items = out
+            items_str = str(sorted(items))
+        else:
+            value     = out
+            items_str = "(value only — by design)"
+        print(f"{name:<18} {value:>6}  {items_str:<22} {(end - start) * 1e6:>8.2f} µs")
 
-    print("-" * 55)
-    max_val, items = knapsack_tabulation(capacity, values, weights)
-    print(f"Selected Items (0-indexed): {items}")
-    print(f"Total Weight of Selection : {sum(weights[i] for i in items)}")
-    print(f"Total Value  of Selection : {max_val}")
-    print("=" * 55)
+    print("=" * 60)
 
 
 def main():

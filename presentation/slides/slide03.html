@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html { background: #ffffff; }
+body {
+  width: 720pt; height: 405pt; margin: 0; padding: 0;
+  background: #F4F6F6; font-family: Arial, sans-serif;
+  display: flex; flex-direction: column;
+}
+.header-bar { background: #1A5490; height: 8pt; width: 100%; }
+.content { flex: 1; padding: 18pt 30pt 10pt 30pt; }
+h1 { color: #1C2833; font-size: 24pt; margin: 0 0 4pt 0; }
+.subtitle { color: #566573; font-size: 12pt; margin: 0 0 12pt 0; }
+.cards { display: flex; flex-wrap: wrap; gap: 8pt; }
+.card {
+  background: #FFFFFF; border-left: 4pt solid #1A5490;
+  padding: 8pt 12pt; width: 200pt;
+  box-shadow: 1px 1px 3px rgba(0,0,0,0.05);
+}
+.card h3 { color: #1A5490; font-size: 12pt; margin: 0 0 3pt 0; }
+.card p { color: #1C2833; font-size: 10pt; margin: 0; line-height: 1.35; }
+.footer { background: #1A5490; padding: 6pt 36pt; display: flex; justify-content: space-between; }
+.footer p { color: #FFFFFF; font-size: 10pt; margin: 0; }
+</style>
+</head>
+<body>
+  <div class="header-bar"></div>
+  <div class="content">
+    <h1>Why It Matters — Real-World Use Cases</h1>
+    <p class="subtitle">The same abstract problem shows up in logistics, finance, computing, and security.</p>
+    <div class="cards">
+      <div class="card">
+        <h3>Cargo &amp; Container Loading</h3>
+        <p>Pick packages for a truck or aircraft when capacity is fixed and each item has a profit and weight.</p>
+      </div>
+      <div class="card">
+        <h3>Capital Budgeting</h3>
+        <p>Choose investment projects under a fixed budget where each project has an expected return.</p>
+      </div>
+      <div class="card">
+        <h3>Cloud Resource Allocation</h3>
+        <p>Schedule jobs on a server with limited memory or CPU to maximise throughput or revenue.</p>
+      </div>
+      <div class="card">
+        <h3>Cutting Stock</h3>
+        <p>Choose cut patterns from raw material to maximise yield within available stock.</p>
+      </div>
+      <div class="card">
+        <h3>Cryptography</h3>
+        <p>Merkle–Hellman knapsack cryptosystem encodes messages as 0/1 selections.</p>
+      </div>
+      <div class="card">
+        <h3>Game AI &amp; Inventory</h3>
+        <p>Limited-slot inventory or loadout selection — classic 0/1 with weight = slot cost.</p>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><p>0/1 Knapsack — Empirical Comparison</p><p>3 / 15</p></div>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html { background: #ffffff; }
+body {
+  width: 720pt; height: 405pt; margin: 0; padding: 0;
+  background: #F4F6F6; font-family: Arial, sans-serif;
+  display: flex; flex-direction: column;
+}
+.header-bar { background: #9b59b6; height: 8pt; width: 100%; }
+.content { flex: 1; padding: 14pt 30pt 8pt 30pt; }
+.tag { display: inline-block; background: #9b59b6; color: #FFFFFF; font-size: 9pt;
+       padding: 2pt 8pt; border-radius: 3pt; margin-bottom: 6pt; letter-spacing: 1pt; }
+.tag p { margin: 0; color: #FFFFFF; font-size: 9pt; }
+h1 { color: #1C2833; font-size: 22pt; margin: 0 0 10pt 0; }
+.row { display: flex; gap: 12pt; }
+.left { flex: 1.2; }
+.right { flex: 1; background: #1C2833; padding: 10pt 14pt; }
+.left h3 { color: #6C3483; font-size: 12pt; margin: 0 0 3pt 0; }
+.left p, .left li { color: #1C2833; font-size: 11pt; line-height: 1.4; }
+.left ul { margin: 0 0 6pt 0; padding-left: 16pt; }
+.right h3 { color: #FFFFFF; font-size: 11pt; margin: 0 0 5pt 0; }
+.right p { color: #ECF0F1; font-size: 10pt; margin: 0 0 5pt 0; line-height: 1.35; font-family: 'Courier New', monospace; }
+.right .ok { color: #2ECC71; }
+.right .warn { color: #F39C12; }
+.complexity { background: #F4ECF7; padding: 6pt 10pt; margin: 6pt 0; }
+.complexity p { color: #6C3483; font-size: 11pt; margin: 0; font-family: 'Courier New', monospace; }
+.footer { background: #9b59b6; padding: 6pt 36pt; display: flex; justify-content: space-between; }
+.footer p { color: #FFFFFF; font-size: 10pt; margin: 0; }
+</style>
+</head>
+<body>
+  <div class="header-bar"></div>
+  <div class="content">
+    <span class="tag"><p>APPROXIMATION</p></span>
+    <h1>5. Greedy Approximation</h1>
+    <div class="row">
+      <div class="left">
+        <h3>How it works</h3>
+        <p>Sort items by <b>value/weight ratio</b> descending. Pack greedily until the next one doesn't fit. To guarantee ≥ OPT/2, return <code>max(greedy_pack, best_single_item)</code>.</p>
+        <div class="complexity"><p>Time: O(n log n) &nbsp;&nbsp;|&nbsp;&nbsp; Space: O(n) &nbsp;&nbsp;|&nbsp;&nbsp; Guarantee: ≥ OPT / 2</p></div>
+        <h3>Pros</h3>
+        <ul><li>Lightning fast — no DP table at all; <b>independent of W</b>.</li>
+            <li>Trivial to implement; uses only sorting.</li></ul>
+        <h3>Cons</h3>
+        <ul><li>Only a 50% guarantee in the worst case.</li>
+            <li>Performs poorly on strongly-correlated instances (all ratios similar).</li></ul>
+      </div>
+      <div class="right">
+        <h3>Output on baseline</h3>
+        <p>ratios sorted: 6.0, 5.0, 4.0, 3.2</p>
+        <p class="warn">value = 160</p>
+        <p class="warn">items = [0, 1]   ← 60+100</p>
+        <p class="ok">guarantee floor = 110</p>
+        <p>OPT = 220 → got 73%</p>
+        <p>(above the 50% floor, below optimal)</p>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><p>0/1 Knapsack — Empirical Comparison</p><p>9 / 15</p></div>
+</body>
+</html>

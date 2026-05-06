@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html { background: #ffffff; }
+body {
+  width: 720pt; height: 405pt; margin: 0; padding: 0;
+  background: #F4F6F6; font-family: Arial, sans-serif;
+  display: flex; flex-direction: column;
+}
+.header-bar { background: #e74c3c; height: 8pt; width: 100%; }
+.content { flex: 1; padding: 14pt 30pt 8pt 30pt; }
+.tag { display: inline-block; background: #e74c3c; color: #FFFFFF; font-size: 9pt;
+       padding: 2pt 8pt; border-radius: 3pt; margin-bottom: 6pt; letter-spacing: 1pt; }
+.tag p { margin: 0; color: #FFFFFF; font-size: 9pt; }
+h1 { color: #1C2833; font-size: 22pt; margin: 0 0 10pt 0; }
+.row { display: flex; gap: 12pt; }
+.left { flex: 1.2; }
+.right { flex: 1; background: #1C2833; padding: 10pt 14pt; }
+.left h3 { color: #B03A2E; font-size: 12pt; margin: 0 0 3pt 0; }
+.left p, .left li { color: #1C2833; font-size: 11pt; line-height: 1.4; }
+.left ul { margin: 0 0 6pt 0; padding-left: 16pt; }
+.right h3 { color: #FFFFFF; font-size: 11pt; margin: 0 0 5pt 0; }
+.right p { color: #ECF0F1; font-size: 10pt; margin: 0 0 5pt 0; line-height: 1.35; font-family: 'Courier New', monospace; }
+.right .ok { color: #2ECC71; }
+.complexity { background: #FDEDEC; padding: 6pt 10pt; margin: 6pt 0; }
+.complexity p { color: #B03A2E; font-size: 11pt; margin: 0; font-family: 'Courier New', monospace; }
+.footer { background: #e74c3c; padding: 6pt 36pt; display: flex; justify-content: space-between; }
+.footer p { color: #FFFFFF; font-size: 10pt; margin: 0; }
+</style>
+</head>
+<body>
+  <div class="header-bar"></div>
+  <div class="content">
+    <span class="tag"><p>NAIVE APPROACH</p></span>
+    <h1>1. Brute Force (Pure Recursion)</h1>
+    <div class="row">
+      <div class="left">
+        <h3>How it works</h3>
+        <p>For each item: <b>take it</b> or <b>skip it</b>. Recurse on the remaining n−1 items, return the max of the two branches. No caching — every subproblem is re-solved from scratch.</p>
+        <div class="complexity"><p>Time: O(2ⁿ) &nbsp;&nbsp;|&nbsp;&nbsp; Space: O(n) recursion stack</p></div>
+        <h3>Pros</h3>
+        <ul><li>Trivial correctness; useful as a reference for testing other algorithms.</li>
+            <li>No data structures, no memory pressure.</li></ul>
+        <h3>Cons</h3>
+        <ul><li>Explodes after n ≈ 25 (2²⁵ ≈ 33 million calls).</li>
+            <li>Same subproblem solved many times.</li></ul>
+      </div>
+      <div class="right">
+        <h3>Output on baseline (n=4, W=50)</h3>
+        <p>values  = [60, 100, 120, 80]</p>
+        <p>weights = [10,  20,  30, 25]</p>
+        <p class="ok">value = 220</p>
+        <p class="ok">items = [1, 2]   ← items 100+120</p>
+        <p class="ok">weight= 50  &nbsp;(exact fit)</p>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><p>0/1 Knapsack — Empirical Comparison</p><p>5 / 15</p></div>
+</body>
+</html>

@@ -49,8 +49,8 @@ def run_exact(name, values, weights, capacity, expected):
     memo = [[None] * (capacity + 1) for _ in range(n + 1)]
 
     results = {
-        "BruteForce": knapsack_brute_force(capacity, n, values, weights),
-        "Memoization": knapsack_memoization(capacity, n, values, weights, memo),
+        "BruteForce": knapsack_brute_force(capacity, n, values, weights)[0],
+        "Memoization": knapsack_memoization(capacity, n, values, weights, memo)[0],
         "Tabulation": knapsack_tabulation(capacity, values, weights)[0],
         "SpaceOpt":  knapsack_space_optimised(values, weights, n, capacity),
     }
@@ -90,7 +90,7 @@ def run_approx(name, values, weights, capacity, opt):
     """Run greedy and FPTAS; verify their guarantees."""
     global total_tests, total_pass
 
-    gr = knapsack_greedy(capacity, values, weights)
+    gr = knapsack_greedy(capacity, values, weights)[0]
     gap = ((opt - gr) / opt * 100) if opt > 0 else 0.0
     opt2_ok = (opt == 0) or (gr >= opt / 2 - 1e-9)
     total_tests += 1
@@ -228,12 +228,12 @@ def main():
 
     # n=0 (empty)
     for name, func_result in [
-        ("BF  — n=0",        knapsack_brute_force(50, 0, [], [])),
+        ("BF  — n=0",        knapsack_brute_force(50, 0, [], [])[0]),
         ("Memo — n=0",       knapsack_memoization(50, 0, [], [],
-                                [[None]*51 for _ in range(1)])),
+                                [[None]*51 for _ in range(1)])[0]),
         ("Tab  — n=0",       knapsack_tabulation(50, [], [])[0]),
         ("SpOp — n=0",       knapsack_space_optimised([], [], 0, 50)),
-        ("Grdy — n=0",       knapsack_greedy(50, [], [])),
+        ("Grdy — n=0",       knapsack_greedy(50, [], [])[0]),
         ("FPTAS— n=0",       knapsack_fptas(50, [], [], 0.25)),
     ]:
         ok = func_result == 0
@@ -243,7 +243,7 @@ def main():
         print(f"    {name:<40} {func_result}  ({'OK' if ok else 'XX'} expected 0)")
 
     # capacity=1 (edge)
-    val1 = knapsack_brute_force(1, 3, [10,5,3], [2,3,1])
+    val1 = knapsack_brute_force(1, 3, [10,5,3], [2,3,1])[0]
     expected1 = 3
     ok1 = val1 == expected1
     total_tests += 1
@@ -257,7 +257,7 @@ def main():
     print("    Case 1 — 'ratio trap' (OPT=12, greedy should return 10)")
     v, w, cap = [10, 6, 6], [5, 4, 4], 8
     opt_tab = knapsack_tabulation(cap, v, w)[0]
-    gr_val  = knapsack_greedy(cap, v, w)
+    gr_val  = knapsack_greedy(cap, v, w)[0]
     gap = (opt_tab - gr_val) / opt_tab * 100
     greedy_not_optimal = gr_val < opt_tab
     total_tests += 1
@@ -270,7 +270,7 @@ def main():
     print()
     print("    Case 2 — CLAUDE.md baseline (OPT=220, greedy should return 160)")
     v2, w2, cap2 = [60,100,120,80], [10,20,30,25], 50
-    gr2 = knapsack_greedy(cap2, v2, w2)
+    gr2 = knapsack_greedy(cap2, v2, w2)[0]
     gap2 = (220 - gr2) / 220 * 100
     print(f"      OPT=220  Greedy={gr2}  Gap={gap2:.1f}%  OPT/2={110}  Greedy>={110}? {'OK' if gr2 >= 110 else 'XX'}")
 
@@ -435,8 +435,8 @@ def main():
         n_uc = len(sv)
         memo_uc = [[None]*(sc+1) for _ in range(n_uc+1)]
         exact = [
-            knapsack_brute_force(sc, n_uc, sv, sw),
-            knapsack_memoization(sc, n_uc, sv, sw, memo_uc),
+            knapsack_brute_force(sc, n_uc, sv, sw)[0],
+            knapsack_memoization(sc, n_uc, sv, sw, memo_uc)[0],
             opt,
             knapsack_space_optimised(sv, sw, n_uc, sc),
         ]
@@ -465,7 +465,7 @@ def main():
         tab_opt, _ = knapsack_tabulation(kW, kv, kw)
         sp_opt     = knapsack_space_optimised(kv, kw, kn, kW)
         kmemo      = [[None]*(kW+1) for _ in range(kn+1)]
-        m_opt      = knapsack_memoization(kW, kn, kv, kw, kmemo)
+        m_opt, _   = knapsack_memoization(kW, kn, kv, kw, kmemo)
         match = (tab_opt == sp_opt == m_opt)
         total_tests += 3
         if match: total_pass += 3
