@@ -10,11 +10,13 @@ async function build() {
     pptx.author = 'Anas Tabba, Abdullah Khan Sherwani, Zuhair Merchant, Raahin Raajiudin';
 
     const slidesDir = path.join(__dirname, 'slides');
-    const total = 13;
+    const slideNums = [1,2,3,4,5,6,7,8,9,10,11,13];
+    const total = slideNums.length;
 
-    for (let i = 1; i <= total; i++) {
+    for (let idx = 0; idx < total; idx++) {
+        const i = slideNums[idx];
         const file = path.join(slidesDir, `slide${String(i).padStart(2, '0')}.html`);
-        process.stdout.write(`  [${i}/${total}] ${path.basename(file)} ... `);
+        process.stdout.write(`  [${idx+1}/${total}] ${path.basename(file)} ... `);
         await html2pptx(file, pptx);
         process.stdout.write('ok\n');
     }
