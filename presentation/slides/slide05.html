@@ -9,23 +9,25 @@ body {
   display: flex; flex-direction: column;
 }
 .header-bar { background: #2ecc71; height: 8pt; width: 100%; }
-.content { flex: 1; padding: 14pt 30pt 8pt 30pt; }
+.content { flex: 1; padding: 12pt 30pt 6pt 30pt; }
 .tag { display: inline-block; background: #2ecc71; color: #FFFFFF; font-size: 9pt;
-       padding: 2pt 8pt; border-radius: 3pt; margin-bottom: 6pt; letter-spacing: 1pt; }
+       padding: 2pt 8pt; border-radius: 3pt; margin-bottom: 5pt; letter-spacing: 1pt; }
 .tag p { margin: 0; color: #FFFFFF; font-size: 9pt; }
-h1 { color: #1C2833; font-size: 22pt; margin: 0 0 10pt 0; }
+h1 { color: #1C2833; font-size: 22pt; margin: 0 0 8pt 0; }
 .row { display: flex; gap: 12pt; }
 .left { flex: 1.2; }
 .right { flex: 1; background: #1C2833; padding: 10pt 14pt; }
-.left h3 { color: #239B56; font-size: 12pt; margin: 0 0 3pt 0; }
-.left p, .left li { color: #1C2833; font-size: 11pt; line-height: 1.4; }
-.left ul { margin: 0 0 6pt 0; padding-left: 16pt; }
+.left h3 { color: #239B56; font-size: 11pt; margin: 0 0 2pt 0; }
+.left p, .left li { color: #1C2833; font-size: 10.5pt; line-height: 1.35; }
+.left ul { margin: 0 0 5pt 0; padding-left: 16pt; }
 .right h3 { color: #FFFFFF; font-size: 11pt; margin: 0 0 6pt 0; }
 .right pre { color: #ECF0F1; font-size: 9pt; margin: 0; line-height: 1.5;
              font-family: 'Courier New', monospace; white-space: pre; }
 .kw { color: #2ecc71; }
-.complexity { background: #E8F8F0; padding: 6pt 10pt; margin: 6pt 0; }
-.complexity p { color: #239B56; font-size: 11pt; margin: 0; font-family: 'Courier New', monospace; }
+.complexity { background: #E8F8F0; padding: 5pt 10pt; margin: 5pt 0; }
+.complexity p { color: #239B56; font-size: 10.5pt; margin: 0; font-family: 'Courier New', monospace; }
+.note { margin-top: 6pt; background: #2E4053; border-left: 4pt solid #F39C12; padding: 5pt 10pt; }
+.note p { color: #F4F6F6; font-size: 9.5pt; margin: 0; line-height: 1.35; }
 .footer { background: #2ecc71; padding: 6pt 36pt; display: flex; justify-content: space-between; }
 .footer p { color: #FFFFFF; font-size: 10pt; margin: 0; }
 </style>
@@ -40,12 +42,12 @@ h1 { color: #1C2833; font-size: 22pt; margin: 0 0 10pt 0; }
         <h3>How it works</h3>
         <p>Build a 2-D table tab[i][w] iteratively from i = 0…n and w = 0…W. Each cell is the optimum using the first i items with capacity w. No recursion, no stack overhead.</p>
         <div class="complexity"><p>Time: O(n · W) &nbsp;&nbsp;|&nbsp;&nbsp; Space: O(n · W)</p></div>
-        <h3>Pros</h3>
-        <ul><li>Iterative — fastest in practice among the exact DPs (no call overhead).</li>
-            <li>The full table lets us <b>backtrack and reconstruct the chosen items</b>.</li></ul>
-        <h3>Cons</h3>
-        <ul><li>Same O(nW) memory as memoization.</li>
-            <li>Computes every cell, even ones the recursion would have skipped.</li></ul>
+        <h3>Over Brute Force</h3>
+        <ul><li>Reduces O(2ⁿ) to O(n·W) — handles n = 500 where BF collapses at n = 25.</li>
+            <li>Each subproblem solved <b>exactly once</b>; BF recomputes overlapping subproblems repeatedly.</li></ul>
+        <h3>Over Memoization</h3>
+        <ul><li>No recursion stack — never hits Python's depth limit; no <code>setrecursionlimit</code> needed.</li>
+            <li>No per-call frame allocation overhead.</li></ul>
       </div>
       <div class="right">
         <h3>Core Logic</h3>
@@ -53,12 +55,15 @@ h1 { color: #1C2833; font-size: 22pt; margin: 0 0 10pt 0; }
   <span class="kw">for</span> w <span class="kw">in</span> range(1, capacity + 1):
     <span class="kw">if</span> weights[i-1] &lt;= w:
       include = (values[i-1]
-                 + tab[i-1][w - weights[i-1]])
+               + tab[i-1][w - weights[i-1]])
       exclude = tab[i-1][w]
       tab[i][w] = max(include, exclude)
     <span class="kw">else</span>:
       tab[i][w] = tab[i-1][w]</pre>
       </div>
+    </div>
+    <div class="note">
+      <p><b>Empirical discrepancy:</b> Textbooks claim tabulation is fastest in practice due to cache locality — true in C++. In our Python benchmarks, memoization was faster across <b>every</b> category and n value (1.02× to 45× slower). Memoization skips unreachable (i, w) states; tabulation always fills the full n×W table.</p>
     </div>
   </div>
   <div class="footer"><p>0/1 Knapsack — Empirical Comparison</p><p>5 / 13</p></div>
