@@ -21,10 +21,9 @@ h1 { color: #1C2833; font-size: 21pt; margin: 0 0 10pt 0; }
 .left p, .left li { color: #1C2833; font-size: 11pt; line-height: 1.4; }
 .left ul { margin: 0 0 6pt 0; padding-left: 16pt; }
 .right h3 { color: #FFFFFF; font-size: 11pt; margin: 0 0 6pt 0; }
-.right pre { color: #ECF0F1; font-size: 9.5pt; margin: 0; line-height: 1.5;
+.right pre { color: #ECF0F1; font-size: 9pt; margin: 0; line-height: 1.5;
              font-family: 'Courier New', monospace; white-space: pre; }
 .kw { color: #1abc9c; }
-.fn { color: #3498db; }
 .complexity { background: #E8F8F5; padding: 6pt 10pt; margin: 6pt 0; }
 .complexity p { color: #117A65; font-size: 11pt; margin: 0; font-family: 'Courier New', monospace; }
 .footer { background: #1abc9c; padding: 6pt 36pt; display: flex; justify-content: space-between; }
@@ -50,16 +49,19 @@ h1 { color: #1C2833; font-size: 21pt; margin: 0 0 10pt 0; }
       </div>
       <div class="right">
         <h3>Core Logic</h3>
-        <pre>K = (eps * max(values)) / n
-scaled = [floor(v/K) <span class="kw">for</span> v <span class="kw">in</span> values]
+        <pre>P = max(values)
+K = (epsilon * P) / n
+scaled = [floor(v / K) <span class="kw">for</span> v <span class="kw">in</span> values]
+max_profit = sum(scaled)
+dp[0][0] = 0  <span class="kw"># all others = INF</span>
 
-<span class="kw">for</span> i <span class="kw">in</span> range(1, n+1):
-  vi = scaled[i-1]
-  <span class="kw">for</span> p <span class="kw">in</span> range(max_profit+1):
+<span class="kw">for</span> i <span class="kw">in</span> range(1, n + 1):
+  vi = scaled[i-1]; wi = weights[i-1]
+  <span class="kw">for</span> p <span class="kw">in</span> range(max_profit + 1):
     dp[i][p] = dp[i-1][p]
-    <span class="kw">if</span> p &gt;= vi:
-      dp[i][p] = min(dp[i][p],
-        dp[i-1][p-vi] + weights[i-1])</pre>
+    <span class="kw">if</span> vi &gt; 0 <span class="kw">and</span> p &gt;= vi:
+      <span class="kw">if</span> dp[i-1][p-vi] + wi &lt; dp[i][p]:
+        dp[i][p] = dp[i-1][p-vi] + wi</pre>
       </div>
     </div>
   </div>

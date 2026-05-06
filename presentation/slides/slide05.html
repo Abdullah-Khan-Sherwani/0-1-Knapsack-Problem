@@ -21,10 +21,9 @@ h1 { color: #1C2833; font-size: 22pt; margin: 0 0 10pt 0; }
 .left p, .left li { color: #1C2833; font-size: 11pt; line-height: 1.4; }
 .left ul { margin: 0 0 6pt 0; padding-left: 16pt; }
 .right h3 { color: #FFFFFF; font-size: 11pt; margin: 0 0 6pt 0; }
-.right pre { color: #ECF0F1; font-size: 9.5pt; margin: 0; line-height: 1.5;
+.right pre { color: #ECF0F1; font-size: 9pt; margin: 0; line-height: 1.5;
              font-family: 'Courier New', monospace; white-space: pre; }
 .kw { color: #2ecc71; }
-.fn { color: #3498db; }
 .complexity { background: #E8F8F0; padding: 6pt 10pt; margin: 6pt 0; }
 .complexity p { color: #239B56; font-size: 11pt; margin: 0; font-family: 'Courier New', monospace; }
 .footer { background: #2ecc71; padding: 6pt 36pt; display: flex; justify-content: space-between; }
@@ -50,16 +49,15 @@ h1 { color: #1C2833; font-size: 22pt; margin: 0 0 10pt 0; }
       </div>
       <div class="right">
         <h3>Core Logic</h3>
-        <pre><span class="kw">for</span> i <span class="kw">in</span> range(1, n+1):
-  <span class="kw">for</span> w <span class="kw">in</span> range(W+1):
-    <span class="kw">if</span> weights[i-1] &gt; w:
-      dp[i][w] = dp[i-1][w]
+        <pre><span class="kw">for</span> i <span class="kw">in</span> range(1, n + 1):
+  <span class="kw">for</span> w <span class="kw">in</span> range(1, capacity + 1):
+    <span class="kw">if</span> weights[i-1] &lt;= w:
+      include = (values[i-1]
+                 + tab[i-1][w - weights[i-1]])
+      exclude = tab[i-1][w]
+      tab[i][w] = max(include, exclude)
     <span class="kw">else</span>:
-      dp[i][w] = max(
-        dp[i-1][w],
-        values[i-1] +
-          dp[i-1][w - weights[i-1]]
-      )</pre>
+      tab[i][w] = tab[i-1][w]</pre>
       </div>
     </div>
   </div>

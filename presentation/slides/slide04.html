@@ -21,11 +21,9 @@ h1 { color: #1C2833; font-size: 22pt; margin: 0 0 10pt 0; }
 .left p, .left li { color: #1C2833; font-size: 11pt; line-height: 1.4; }
 .left ul { margin: 0 0 6pt 0; padding-left: 16pt; }
 .right h3 { color: #FFFFFF; font-size: 11pt; margin: 0 0 6pt 0; }
-.right pre { color: #ECF0F1; font-size: 9.5pt; margin: 0; line-height: 1.5;
+.right pre { color: #ECF0F1; font-size: 9pt; margin: 0; line-height: 1.5;
              font-family: 'Courier New', monospace; white-space: pre; }
 .kw  { color: #e74c3c; }
-.fn  { color: #3498db; }
-.cm  { color: #7f8c8d; }
 .complexity { background: #FDEDEC; padding: 6pt 10pt; margin: 6pt 0; }
 .complexity p { color: #B03A2E; font-size: 11pt; margin: 0; font-family: 'Courier New', monospace; }
 .footer { background: #e74c3c; padding: 6pt 36pt; display: flex; justify-content: space-between; }
@@ -51,16 +49,22 @@ h1 { color: #1C2833; font-size: 22pt; margin: 0 0 10pt 0; }
       </div>
       <div class="right">
         <h3>Core Logic</h3>
-        <pre><span class="kw">def</span> <span class="fn">solve</span>(i, w):
-    <span class="kw">if</span> i == 0 <span class="kw">or</span> w == 0:
-        <span class="kw">return</span> 0
-    <span class="kw">if</span> weights[i-1] &gt; w:
-        <span class="kw">return</span> solve(i-1, w)
-    <span class="kw">return</span> max(
-        solve(i-1, w),
-        values[i-1] + solve(i-1,
-                       w - weights[i-1])
-    )</pre>
+        <pre><span class="kw">def</span> knapsack_brute_force(capacity, n,
+                         values, weights):
+  <span class="kw">if</span> n == 0 <span class="kw">or</span> capacity == 0:
+    <span class="kw">return</span> 0, []
+  <span class="kw">if</span> weights[n-1] &gt; capacity:
+    <span class="kw">return</span> knapsack_brute_force(
+               capacity, n-1, values, weights)
+  inc, _ = knapsack_brute_force(
+               capacity - weights[n-1],
+               n-1, values, weights)
+  inc += values[n-1]
+  exc, _ = knapsack_brute_force(
+               capacity, n-1, values, weights)
+  <span class="kw">if</span> inc &gt;= exc:
+    <span class="kw">return</span> inc, ...
+  <span class="kw">return</span> exc, ...</pre>
       </div>
     </div>
   </div>

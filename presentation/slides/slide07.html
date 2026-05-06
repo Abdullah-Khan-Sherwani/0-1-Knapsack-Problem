@@ -21,10 +21,9 @@ h1 { color: #1C2833; font-size: 22pt; margin: 0 0 10pt 0; }
 .left p, .left li { color: #1C2833; font-size: 11pt; line-height: 1.4; }
 .left ul { margin: 0 0 6pt 0; padding-left: 16pt; }
 .right h3 { color: #FFFFFF; font-size: 11pt; margin: 0 0 6pt 0; }
-.right pre { color: #ECF0F1; font-size: 9.5pt; margin: 0; line-height: 1.5;
+.right pre { color: #ECF0F1; font-size: 9pt; margin: 0; line-height: 1.5;
              font-family: 'Courier New', monospace; white-space: pre; }
 .kw { color: #3498db; }
-.fn { color: #2ecc71; }
 .complexity { background: #EBF5FB; padding: 6pt 10pt; margin: 6pt 0; }
 .complexity p { color: #1F618D; font-size: 11pt; margin: 0; font-family: 'Courier New', monospace; }
 .footer { background: #3498db; padding: 6pt 36pt; display: flex; justify-content: space-between; }
@@ -50,19 +49,25 @@ h1 { color: #1C2833; font-size: 22pt; margin: 0 0 10pt 0; }
       </div>
       <div class="right">
         <h3>Core Logic</h3>
-        <pre><span class="kw">def</span> <span class="fn">solve</span>(i, w):
-  <span class="kw">if</span> i == 0 <span class="kw">or</span> w == 0:
-    <span class="kw">return</span> 0
-  <span class="kw">if</span> memo[i][w] <span class="kw">is not</span> None:
-    <span class="kw">return</span> memo[i][w]
-  <span class="kw">if</span> weights[i-1] &gt; w:
-    res = solve(i-1, w)
+        <pre><span class="kw">def</span> knapsack_memoization(cap, n, values,
+                          weights, memo):
+  <span class="kw">if</span> memo[n][cap] <span class="kw">is not</span> None:
+    <span class="kw">return</span> memo[n][cap]
+  <span class="kw">if</span> n == 0 <span class="kw">or</span> cap == 0:
+    result = (0, [])
+  <span class="kw">elif</span> weights[n-1] &gt; cap:
+    result = knapsack_memoization(
+                 cap, n-1, values, weights, memo)
   <span class="kw">else</span>:
-    res = max(solve(i-1, w),
-      values[i-1] +
-        solve(i-1, w-weights[i-1]))
-  memo[i][w] = res
-  <span class="kw">return</span> res</pre>
+    inc, _ = knapsack_memoization(
+                 cap-weights[n-1], n-1,
+                 values, weights, memo)
+    inc += values[n-1]
+    exc, _ = knapsack_memoization(
+                 cap, n-1, values, weights, memo)
+    result = (inc, ...) <span class="kw">if</span> inc &gt;= exc <span class="kw">else</span> (exc, ...)
+  memo[n][cap] = result
+  <span class="kw">return</span> result</pre>
       </div>
     </div>
   </div>

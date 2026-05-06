@@ -21,10 +21,9 @@ h1 { color: #1C2833; font-size: 22pt; margin: 0 0 10pt 0; }
 .left p, .left li { color: #1C2833; font-size: 11pt; line-height: 1.4; }
 .left ul { margin: 0 0 6pt 0; padding-left: 16pt; }
 .right h3 { color: #FFFFFF; font-size: 11pt; margin: 0 0 6pt 0; }
-.right pre { color: #ECF0F1; font-size: 9.5pt; margin: 0; line-height: 1.5;
+.right pre { color: #ECF0F1; font-size: 9pt; margin: 0; line-height: 1.5;
              font-family: 'Courier New', monospace; white-space: pre; }
 .kw { color: #9b59b6; }
-.fn { color: #3498db; }
 .complexity { background: #F4ECF7; padding: 6pt 10pt; margin: 6pt 0; }
 .complexity p { color: #6C3483; font-size: 11pt; margin: 0; font-family: 'Courier New', monospace; }
 .footer { background: #9b59b6; padding: 6pt 36pt; display: flex; justify-content: space-between; }
@@ -50,18 +49,22 @@ h1 { color: #1C2833; font-size: 22pt; margin: 0 0 10pt 0; }
       </div>
       <div class="right">
         <h3>Core Logic</h3>
-        <pre>order = sorted(range(n),
-  key=<span class="kw">lambda</span> i:
-    values[i]/weights[i],
-  reverse=True)
+        <pre>ratios = [(values[i]/weights[i], i)
+          <span class="kw">for</span> i <span class="kw">in</span> range(n)]
+ratios.sort(reverse=True)
 
-total_w = total_v = 0
-<span class="kw">for</span> i <span class="kw">in</span> order:
-  <span class="kw">if</span> total_w + weights[i] &lt;= W:
-    total_w += weights[i]
-    total_v += values[i]
+s1_value = total_weight = 0
+s2_value = 0
 
-<span class="kw">return</span> max(total_v, max(values))</pre>
+<span class="kw">for</span> ratio, item <span class="kw">in</span> ratios:
+  <span class="kw">if</span> total_weight + weights[item] &lt;= capacity:
+    s1_value += values[item]
+    total_weight += weights[item]
+  <span class="kw">elif</span> s2_value == 0 <span class="kw">and</span> \
+       weights[item] &lt;= capacity:
+    s2_value = values[item]
+
+<span class="kw">return</span> max(s1_value, s2_value)</pre>
       </div>
     </div>
   </div>
