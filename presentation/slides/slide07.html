@@ -41,11 +41,11 @@ h1 { color: #1C2833; font-size: 22pt; margin: 0 0 10pt 0; }
         <p>Same recursion as brute force, plus a <b>memo[n+1][W+1]</b> table that caches each (i, w) subproblem. Each state is solved once → total work proportional to table size.</p>
         <div class="complexity"><p>Time: O(n · W) &nbsp;&nbsp;|&nbsp;&nbsp; Space: O(n · W)</p></div>
         <h3>Pros</h3>
-        <ul><li>Reuses brute-force logic — easy to write once you have the recursion.</li>
-            <li>Massive speed-up: from O(2ⁿ) to O(nW).</li></ul>
+        <ul><li>Skips unreachable (i, w) states — only solves subproblems that are actually needed.</li>
+            <li><b>Faster than tabulation when W is large relative to n</b>: skips most of the table, doing far less work.</li></ul>
         <h3>Cons</h3>
-        <ul><li>Pseudo-polynomial — runtime depends on the <i>value</i> of W, not its bit-length.</li>
-            <li>Recursion depth grows with n (Python: needs <code>setrecursionlimit</code>).</li></ul>
+        <ul><li>Recursion call overhead per subproblem — at large n, per-frame cost accumulates and tabulation's loops win.</li>
+            <li>Recursion depth bounded by n — deep stacks require runtime configuration.</li></ul>
       </div>
       <div class="right">
         <h3>Core Logic</h3>

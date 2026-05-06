@@ -42,12 +42,13 @@ h1 { color: #1C2833; font-size: 22pt; margin: 0 0 8pt 0; }
         <h3>How it works</h3>
         <p>Build a 2-D table tab[i][w] iteratively from i = 0…n and w = 0…W. Each cell is the optimum using the first i items with capacity w. No recursion, no stack overhead.</p>
         <div class="complexity"><p>Time: O(n · W) &nbsp;&nbsp;|&nbsp;&nbsp; Space: O(n · W)</p></div>
-        <h3>Over Brute Force</h3>
+        <h3>Pros</h3>
         <ul><li>Reduces O(2ⁿ) to O(n·W) — handles n = 500 where BF collapses at n = 25.</li>
-            <li>Each subproblem solved <b>exactly once</b>; BF recomputes overlapping subproblems repeatedly.</li></ul>
-        <h3>Over Memoization</h3>
-        <ul><li>No recursion stack — never hits Python's depth limit; no <code>setrecursionlimit</code> needed.</li>
-            <li>No per-call frame allocation overhead.</li></ul>
+            <li>No recursion overhead — iterative loops are constant-cost per cell.</li>
+            <li><b>Faster than memoization at larger n</b>: tight nested loops + sequential memory access win as fill-density grows.</li></ul>
+        <h3>Cons</h3>
+        <ul><li>Always fills the full n×W table — wastes work when most states are unreachable (small n, large W).</li>
+            <li>Pseudo-polynomial — O(n·W) depends on the value of W, not its bit-length.</li></ul>
       </div>
       <div class="right">
         <h3>Core Logic</h3>
@@ -63,7 +64,7 @@ h1 { color: #1C2833; font-size: 22pt; margin: 0 0 8pt 0; }
       </div>
     </div>
     <div class="note">
-      <p><b>Empirical discrepancy:</b> Textbooks claim tabulation is fastest in practice due to cache locality — true in C++. In our Python benchmarks, memoization was faster across <b>every</b> category and n value (1.02× to 45× slower). Memoization skips unreachable (i, w) states; tabulation always fills the full n×W table.</p>
+      <p><b>Empirical regime-dependence (kplib, W = ⌊Σw/2⌋):</b> At small n, W is large relative to reachable states — memoization's lazy evaluation skips most of the table and wins. At larger n, fill-density rises and tabulation's tight sequential loops take over. Crossover observed around n = 30–40.</p>
     </div>
   </div>
   <div class="footer"><p>0/1 Knapsack — Empirical Comparison</p><p>5 / 13</p></div>
