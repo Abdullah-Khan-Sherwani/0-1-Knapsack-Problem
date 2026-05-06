@@ -10,7 +10,7 @@ async function build() {
     pptx.author = 'Anas Tabba, Abdullah Khan Sherwani, Zuhair Merchant, Raahin Raajiudin';
 
     const slidesDir = path.join(__dirname, 'slides');
-    const slideNums = [1,2,3,4,5,6,7,8,9,10,11,13];
+    const slideNums = [1,2,3,4,5,6,7,8,9,10,11,12,13];
     const total = slideNums.length;
 
     for (let idx = 0; idx < total; idx++) {
