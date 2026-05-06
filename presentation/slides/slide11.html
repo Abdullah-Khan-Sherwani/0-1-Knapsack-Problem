@@ -27,21 +27,22 @@ h1 { color: #1C2833; font-size: 22pt; margin: 0 0 8pt 0; }
   <div class="header-bar"></div>
   <div class="content">
     <h1>Results: Runtime vs Problem Size</h1>
+    <p style="margin-top:6pt;"><em>Data shown: results/benchmark_n100.csv (n ≤ 100)</em></p>
     <div class="row">
       <div class="chart"><img src="fig1_runtime_vs_n.png" alt="runtime vs n"/></div>
       <div class="takeaway">
         <h3>What the chart shows</h3>
         <ul>
           <li><b>Brute force</b> spikes off the chart after n = 25 — the O(2ⁿ) wall.</li>
-          <li><b>Memoization and Tabulation</b> grow linearly in n at fixed W.</li>
+          <li><b>Tabulation</b> performs faster than <b>memoization</b> as n grows large.</li>
           <li><b>Greedy</b> is essentially flat — O(n log n), independent of W.</li>
           <li><b>FPTAS</b> sits between greedy and DP — its scaled DP is small but not free.</li>
         </ul>
         <h3>Discrepancy worth noting</h3>
-        <p>Tabulation often beats memoization in practice despite identical asymptotic cost — no recursion overhead, better cache locality.</p>
+        <p>As n grows large, tabulation tends to outperform memoization in practice because it avoids recursion overhead and has better cache locality.</p>
       </div>
     </div>
   </div>
-  <div class="footer"><p>0/1 Knapsack — Empirical Comparison</p><p>11 / 13</p></div>
+  <div class="footer"><p>0/1 Knapsack — Empirical Comparison</p><p>11 / 12</p></div>
 </body>
 </html>
