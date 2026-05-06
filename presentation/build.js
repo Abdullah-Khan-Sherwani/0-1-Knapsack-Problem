@@ -6,11 +6,11 @@ const html2pptx = require('./html2pptx.js');
 async function build() {
     const pptx = new pptxgen();
     pptx.layout = 'LAYOUT_16x9';
-    pptx.title  = '0/1 Knapsack — Empirical Comparison of Six Algorithms';
+    pptx.title  = '0/1 Knapsack — Empirical Comparison of Five Algorithms';
     pptx.author = 'Anas Tabba, Abdullah Khan Sherwani, Zuhair Merchant, Raahin Raajiudin';
 
     const slidesDir = path.join(__dirname, 'slides');
-    const total = 15;
+    const total = 13;
 
     for (let i = 1; i <= total; i++) {
         const file = path.join(slidesDir, `slide${String(i).padStart(2, '0')}.html`);

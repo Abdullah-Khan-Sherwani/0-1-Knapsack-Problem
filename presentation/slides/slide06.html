@@ -8,54 +8,61 @@ body {
   background: #F4F6F6; font-family: Arial, sans-serif;
   display: flex; flex-direction: column;
 }
-.header-bar { background: #3498db; height: 8pt; width: 100%; }
+.header-bar { background: #1abc9c; height: 8pt; width: 100%; }
 .content { flex: 1; padding: 14pt 30pt 8pt 30pt; }
-.tag { display: inline-block; background: #3498db; color: #FFFFFF; font-size: 9pt;
+.tag { display: inline-block; background: #1abc9c; color: #FFFFFF; font-size: 9pt;
        padding: 2pt 8pt; border-radius: 3pt; margin-bottom: 6pt; letter-spacing: 1pt; }
 .tag p { margin: 0; color: #FFFFFF; font-size: 9pt; }
-h1 { color: #1C2833; font-size: 22pt; margin: 0 0 10pt 0; }
+h1 { color: #1C2833; font-size: 21pt; margin: 0 0 10pt 0; }
 .row { display: flex; gap: 12pt; }
 .left { flex: 1.2; }
 .right { flex: 1; background: #1C2833; padding: 10pt 14pt; }
-.left h3 { color: #1F618D; font-size: 12pt; margin: 0 0 3pt 0; }
+.left h3 { color: #117A65; font-size: 12pt; margin: 0 0 3pt 0; }
 .left p, .left li { color: #1C2833; font-size: 11pt; line-height: 1.4; }
 .left ul { margin: 0 0 6pt 0; padding-left: 16pt; }
-.right h3 { color: #FFFFFF; font-size: 11pt; margin: 0 0 5pt 0; }
-.right p { color: #ECF0F1; font-size: 10pt; margin: 0 0 5pt 0; line-height: 1.35; font-family: 'Courier New', monospace; }
-.right .ok { color: #2ECC71; }
-.complexity { background: #EBF5FB; padding: 6pt 10pt; margin: 6pt 0; }
-.complexity p { color: #1F618D; font-size: 11pt; margin: 0; font-family: 'Courier New', monospace; }
-.footer { background: #3498db; padding: 6pt 36pt; display: flex; justify-content: space-between; }
+.right h3 { color: #FFFFFF; font-size: 11pt; margin: 0 0 6pt 0; }
+.right pre { color: #ECF0F1; font-size: 9.5pt; margin: 0; line-height: 1.5;
+             font-family: 'Courier New', monospace; white-space: pre; }
+.kw { color: #1abc9c; }
+.fn { color: #3498db; }
+.complexity { background: #E8F8F5; padding: 6pt 10pt; margin: 6pt 0; }
+.complexity p { color: #117A65; font-size: 11pt; margin: 0; font-family: 'Courier New', monospace; }
+.footer { background: #1abc9c; padding: 6pt 36pt; display: flex; justify-content: space-between; }
 .footer p { color: #FFFFFF; font-size: 10pt; margin: 0; }
 </style>
 </head>
 <body>
   <div class="header-bar"></div>
   <div class="content">
-    <span class="tag"><p>EXACT — TOP-DOWN DP</p></span>
-    <h1>2. Memoization</h1>
+    <span class="tag"><p>APPROXIMATION</p></span>
+    <h1>3. FPTAS — Fully Polynomial-Time Approximation Scheme</h1>
     <div class="row">
       <div class="left">
         <h3>How it works</h3>
-        <p>Same recursion as brute force, plus a <b>memo[n+1][W+1]</b> table that caches each (i, w) subproblem. Each state is solved once → total work proportional to table size.</p>
-        <div class="complexity"><p>Time: O(n · W) &nbsp;&nbsp;|&nbsp;&nbsp; Space: O(n · W)</p></div>
+        <p>Pick ε ∈ (0, 1). Scale all values by K = εP/n where P = max value. Round down to integers, then run a <b>profit-indexed</b> 2-D DP: dp[i][p] = min weight to achieve scaled profit p using first i items. Backtrack to recover chosen items.</p>
+        <div class="complexity"><p>Time: O(n³ / ε) &nbsp;&nbsp;|&nbsp;&nbsp; Space: O(n³ / ε) &nbsp;&nbsp;|&nbsp;&nbsp; Guarantee: ≥ (1−ε) · OPT</p></div>
         <h3>Pros</h3>
-        <ul><li>Reuses brute-force logic — easy to write once you have the recursion.</li>
-            <li>Massive speed-up: from O(2ⁿ) to O(nW).</li></ul>
+        <ul><li><b>Tunable</b> — pick any ε, get a guarantee proportional to it.</li>
+            <li>Polynomial in n and 1/ε — beats DP when W is huge but n is small.</li></ul>
         <h3>Cons</h3>
-        <ul><li>Pseudo-polynomial — runtime depends on the <i>value</i> of W, not its bit-length.</li>
-            <li>Recursion depth grows with n (Python: needs <code>setrecursionlimit</code>).</li></ul>
+        <ul><li>Approximation only — never guaranteed to return exact OPT.</li>
+            <li>Slower than greedy; O(n³/ε) space from the 2-D backtracking table.</li></ul>
       </div>
       <div class="right">
-        <h3>Use Case</h3>
-        <p>Best when the recursive decomposition is the most natural way to express the problem.</p>
-        <h3>Output on baseline</h3>
-        <p class="ok">value = 220</p>
-        <p class="ok">items = [1, 2]</p>
-        <p>(matches brute force exactly)</p>
+        <h3>Core Logic</h3>
+        <pre>K = (eps * max(values)) / n
+scaled = [floor(v/K) <span class="kw">for</span> v <span class="kw">in</span> values]
+
+<span class="kw">for</span> i <span class="kw">in</span> range(1, n+1):
+  vi = scaled[i-1]
+  <span class="kw">for</span> p <span class="kw">in</span> range(max_profit+1):
+    dp[i][p] = dp[i-1][p]
+    <span class="kw">if</span> p &gt;= vi:
+      dp[i][p] = min(dp[i][p],
+        dp[i-1][p-vi] + weights[i-1])</pre>
       </div>
     </div>
   </div>
-  <div class="footer"><p>0/1 Knapsack — Empirical Comparison</p><p>6 / 15</p></div>
+  <div class="footer"><p>0/1 Knapsack — Empirical Comparison</p><p>6 / 13</p></div>
 </body>
 </html>

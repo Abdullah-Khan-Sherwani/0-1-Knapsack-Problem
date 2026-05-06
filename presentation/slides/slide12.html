@@ -9,18 +9,17 @@ body {
   display: flex; flex-direction: column;
 }
 .header-bar { background: #1A5490; height: 8pt; width: 100%; }
-.content { flex: 1; padding: 14pt 30pt 8pt 30pt; }
-.row { display: flex; gap: 12pt; }
-.left { flex: 1; }
-.right { flex: 1; }
+.content { flex: 1; padding: 18pt 30pt 10pt 30pt; }
 h1 { color: #1C2833; font-size: 22pt; margin: 0 0 8pt 0; }
-h3 { color: #1A5490; font-size: 12pt; margin: 0 0 3pt 0; }
-.left p, .left li, .right p, .right li { color: #1C2833; font-size: 11pt; line-height: 1.4; }
-ul { margin: 0 0 6pt 0; padding-left: 16pt; }
-li { margin-bottom: 2pt; }
-.box { background: #FFFFFF; padding: 8pt 12pt; margin-bottom: 7pt; box-shadow: 1px 1px 3px rgba(0,0,0,0.05); }
-.callout { background: #FDEDEC; border-left: 5pt solid #e74c3c; padding: 6pt 12pt; }
-.callout p { color: #1C2833; font-size: 10pt; margin: 0; line-height: 1.35; }
+.row { display: flex; gap: 16pt; align-items: stretch; }
+.chart { flex: 1.4; background: #FFFFFF; padding: 6pt; box-shadow: 1px 1px 4px rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; }
+.chart img { width: 100%; height: 240pt; object-fit: contain; }
+.takeaway { flex: 1; }
+.takeaway h3 { color: #1A5490; font-size: 13pt; margin: 0 0 6pt 0; }
+.takeaway p, .takeaway li { color: #1C2833; font-size: 11pt; line-height: 1.45; }
+.takeaway ul { margin: 0 0 8pt 0; padding-left: 16pt; }
+.takeaway li { margin-bottom: 4pt; }
+.warn { color: #B03A2E; font-weight: bold; }
 .footer { background: #1A5490; padding: 6pt 36pt; display: flex; justify-content: space-between; }
 .footer p { color: #FFFFFF; font-size: 10pt; margin: 0; }
 </style>
@@ -28,51 +27,22 @@ li { margin-bottom: 2pt; }
 <body>
   <div class="header-bar"></div>
   <div class="content">
-    <h1>Benchmark Methodology &amp; Test Cases</h1>
+    <h1>Results: Approximation Quality vs Optimal</h1>
     <div class="row">
-      <div class="left">
-        <div class="box">
-          <h3>Environment</h3>
-          <ul>
-            <li>Python 3, standard library only</li>
-            <li>Single machine, <code>time.perf_counter()</code></li>
-            <li>Median of multiple instances per (n, ratio) cell</li>
-          </ul>
-        </div>
-        <div class="box">
-          <h3>Test Suite — Pisinger kplib</h3>
-          <ul>
-            <li>14 instance categories (correlation structures)</li>
-            <li>n ∈ {5, 10, 25, 50, 100, 200, 500, …}</li>
-            <li>Two value ranges: <b>R01000</b> and <b>R10000</b></li>
-            <li>Capacity = sum(weights) / 2</li>
-          </ul>
-        </div>
-      </div>
-      <div class="right">
-        <div class="box">
-          <h3>Why these categories?</h3>
-          <ul>
-            <li><b>Uncorrelated</b> — easiest, ratios spread out</li>
-            <li><b>Strongly correlated</b> — hardest, ratios all similar</li>
-            <li><b>Subset Sum</b> — values = weights, special case</li>
-            <li><b>Spanner / Profit Ceiling / Circle</b> — pathological inputs</li>
-          </ul>
-        </div>
-        <div class="box">
-          <h3>Skip Thresholds (avoid OOM)</h3>
-          <ul>
-            <li>BF skipped for n &gt; 25 (2ⁿ explodes)</li>
-            <li>DP variants skipped at n·W &gt; 15M–30M</li>
-            <li>Greedy never skipped</li>
-          </ul>
-        </div>
-        <div class="callout">
-          <p><b>Cross-check:</b> all four exact algorithms must produce the same value on every instance — flagged automatically if they disagree.</p>
-        </div>
+      <div class="chart"><img src="fig4_approx_ratio.png" alt="approximation quality"/></div>
+      <div class="takeaway">
+        <h3>What the chart shows</h3>
+        <ul>
+          <li>Each box = approximation result ÷ optimal across all instances of that category.</li>
+          <li><b>Greedy</b> is excellent on Uncorrelated / SubsetSum (95%+) but drops on <span class="warn">Strongly Correlated</span> categories.</li>
+          <li><b>FPTAS (ε=0.25)</b> never violates its 75% floor; usually 95%+.</li>
+          <li>Both stay within their theoretical guarantees on every instance tested.</li>
+        </ul>
+        <h3>Why correlation hurts greedy</h3>
+        <p>When values track weights, every item has roughly the same v/w ratio — the greedy ordering becomes meaningless and the heuristic loses its grip.</p>
       </div>
     </div>
   </div>
-  <div class="footer"><p>0/1 Knapsack — Empirical Comparison</p><p>12 / 15</p></div>
+  <div class="footer"><p>0/1 Knapsack — Empirical Comparison</p><p>12 / 13</p></div>
 </body>
 </html>

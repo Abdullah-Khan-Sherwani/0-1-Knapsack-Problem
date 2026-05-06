@@ -5,20 +5,27 @@
 html { background: #ffffff; }
 body {
   width: 720pt; height: 405pt; margin: 0; padding: 0;
-  background: #F4F6F6; font-family: Arial, sans-serif;
+  background: #1C2833; font-family: Arial, sans-serif;
   display: flex; flex-direction: column;
 }
 .header-bar { background: #1A5490; height: 8pt; width: 100%; }
-.content { flex: 1; padding: 18pt 30pt 10pt 30pt; }
-h1 { color: #1C2833; font-size: 22pt; margin: 0 0 8pt 0; }
-.row { display: flex; gap: 16pt; align-items: stretch; }
-.chart { flex: 1.4; background: #FFFFFF; padding: 6pt; box-shadow: 1px 1px 4px rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; }
-.chart img { width: 100%; height: 240pt; object-fit: contain; }
-.takeaway { flex: 1; }
-.takeaway h3 { color: #1A5490; font-size: 13pt; margin: 0 0 6pt 0; }
-.takeaway p, .takeaway li { color: #1C2833; font-size: 11pt; line-height: 1.45; }
-.takeaway ul { margin: 0 0 8pt 0; padding-left: 16pt; }
-.takeaway li { margin-bottom: 4pt; }
+.content { flex: 1; padding: 16pt 30pt 10pt 30pt; }
+h1 { color: #FFFFFF; font-size: 22pt; margin: 0 0 10pt 0; }
+.recipe { display: flex; flex-wrap: wrap; gap: 7pt; margin-bottom: 8pt; }
+.r {
+  width: 200pt; background: #2E4053; padding: 7pt 12pt;
+  border-left: 4pt solid #1A5490;
+}
+.r h3 { font-size: 11pt; margin: 0 0 2pt 0; color: #FFFFFF; }
+.r p { color: #ECF0F1; font-size: 10pt; margin: 0; line-height: 1.3; }
+.r-bf      { border-left-color: #e74c3c; }
+.r-tab     { border-left-color: #2ecc71; }
+.r-greedy  { border-left-color: #9b59b6; }
+.r-fptas   { border-left-color: #1abc9c; }
+.takeaway { background: #1A5490; padding: 8pt 14pt; margin-top: 4pt; }
+.takeaway h3 { color: #FFFFFF; font-size: 12pt; margin: 0 0 2pt 0; }
+.takeaway p { color: #F4F6F6; font-size: 10pt; margin: 0; line-height: 1.35; }
+.thanks { color: #AAB7B8; font-size: 12pt; text-align: center; margin: 8pt 0 0 0; letter-spacing: 1pt; }
 .footer { background: #1A5490; padding: 6pt 36pt; display: flex; justify-content: space-between; }
 .footer p { color: #FFFFFF; font-size: 10pt; margin: 0; }
 </style>
@@ -26,22 +33,20 @@ h1 { color: #1C2833; font-size: 22pt; margin: 0 0 8pt 0; }
 <body>
   <div class="header-bar"></div>
   <div class="content">
-    <h1>Results: Runtime vs Problem Size</h1>
-    <div class="row">
-      <div class="chart"><img src="fig1_runtime_vs_n.png" alt="runtime vs n"/></div>
-      <div class="takeaway">
-        <h3>What the chart shows</h3>
-        <ul>
-          <li><b>Brute force</b> spikes off the chart after n = 25 — the O(2ⁿ) wall.</li>
-          <li><b>Memoization, Tabulation, SpaceOpt</b> grow linearly in n at fixed W (the three middle lines stay close).</li>
-          <li><b>Greedy</b> is essentially flat — O(n log n), independent of W.</li>
-          <li><b>FPTAS</b> sits between greedy and DP — its scaled DP is small but not free.</li>
-        </ul>
-        <h3>Discrepancy worth noting</h3>
-        <p>Tabulation often beats memoization in practice despite identical asymptotic cost — no recursion overhead, better cache locality.</p>
-      </div>
+    <h1>Conclusion — Match the Algorithm to the Constraint</h1>
+    <div class="recipe">
+      <div class="r r-bf"><h3>Tiny n (≤ 25)</h3><p>Brute force — sanity check / oracle.</p></div>
+      <div class="r r-tab"><h3>Need item set</h3><p>Tabulation — fastest exact + recoverable.</p></div>
+      <div class="r r-greedy"><h3>Huge W, speed critical</h3><p>Greedy — independent of W, ≥ OPT/2.</p></div>
+      <div class="r r-fptas"><h3>Need provable bound</h3><p>FPTAS — pick ε, get (1−ε)·OPT.</p></div>
+      <div class="r"><h3>Default choice</h3><p>Tabulation if W small, FPTAS if W huge.</p></div>
     </div>
+    <div class="takeaway">
+      <h3>The real lesson</h3>
+      <p>"Best" depends on the instance. Empirical structure (correlation, W magnitude, n) determines the winning algorithm — there is no universal answer, only well-justified trade-offs.</p>
+    </div>
+    <p class="thanks">THANK YOU — QUESTIONS?</p>
   </div>
-  <div class="footer"><p>0/1 Knapsack — Empirical Comparison</p><p>13 / 15</p></div>
+  <div class="footer"><p>0/1 Knapsack — Empirical Comparison</p><p>13 / 13</p></div>
 </body>
 </html>

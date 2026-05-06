@@ -8,59 +8,62 @@ body {
   background: #F4F6F6; font-family: Arial, sans-serif;
   display: flex; flex-direction: column;
 }
-.header-bar { background: #1A5490; height: 8pt; width: 100%; }
-.content { flex: 1; padding: 22pt 36pt 14pt 36pt; }
-h1 { color: #1C2833; font-size: 26pt; margin: 0 0 14pt 0; }
-.row { display: flex; gap: 16pt; }
-.col {
-  flex: 1; background: #FFFFFF; padding: 16pt 20pt;
-  box-shadow: 1px 1px 4px rgba(0,0,0,0.06);
-}
-.col-exact { border-top: 6pt solid #2ecc71; }
-.col-approx { border-top: 6pt solid #9b59b6; }
-.col h2 { font-size: 17pt; margin: 0 0 10pt 0; }
-.col-exact h2 { color: #239B56; }
-.col-approx h2 { color: #6C3483; }
-.col p { color: #566573; font-size: 12pt; margin: 0 0 10pt 0; line-height: 1.5; }
-.col ul { color: #1C2833; font-size: 12pt; line-height: 1.55; margin: 0; padding-left: 18pt; }
-.col li { margin-bottom: 4pt; }
-.tradeoff {
-  margin-top: 14pt; background: #2E4053; padding: 10pt 16pt; text-align: center;
-}
-.tradeoff p { color: #F4F6F6; font-size: 12pt; margin: 0; line-height: 1.4; }
-.tradeoff b { color: #FFFFFF; }
-.footer { background: #1A5490; padding: 6pt 36pt; display: flex; justify-content: space-between; }
+.header-bar { background: #e74c3c; height: 8pt; width: 100%; }
+.content { flex: 1; padding: 14pt 30pt 8pt 30pt; }
+.tag { display: inline-block; background: #e74c3c; color: #FFFFFF; font-size: 9pt;
+       padding: 2pt 8pt; border-radius: 3pt; margin-bottom: 6pt; letter-spacing: 1pt; }
+.tag p { margin: 0; color: #FFFFFF; font-size: 9pt; }
+h1 { color: #1C2833; font-size: 22pt; margin: 0 0 10pt 0; }
+.row { display: flex; gap: 12pt; }
+.left { flex: 1.2; }
+.right { flex: 1; background: #1C2833; padding: 10pt 14pt; }
+.left h3 { color: #B03A2E; font-size: 12pt; margin: 0 0 3pt 0; }
+.left p, .left li { color: #1C2833; font-size: 11pt; line-height: 1.4; }
+.left ul { margin: 0 0 6pt 0; padding-left: 16pt; }
+.right h3 { color: #FFFFFF; font-size: 11pt; margin: 0 0 6pt 0; }
+.right pre { color: #ECF0F1; font-size: 9.5pt; margin: 0; line-height: 1.5;
+             font-family: 'Courier New', monospace; white-space: pre; }
+.kw  { color: #e74c3c; }
+.fn  { color: #3498db; }
+.cm  { color: #7f8c8d; }
+.complexity { background: #FDEDEC; padding: 6pt 10pt; margin: 6pt 0; }
+.complexity p { color: #B03A2E; font-size: 11pt; margin: 0; font-family: 'Courier New', monospace; }
+.footer { background: #e74c3c; padding: 6pt 36pt; display: flex; justify-content: space-between; }
 .footer p { color: #FFFFFF; font-size: 10pt; margin: 0; }
 </style>
 </head>
 <body>
   <div class="header-bar"></div>
   <div class="content">
-    <h1>Why These 6 Algorithms?</h1>
+    <span class="tag"><p>NAIVE APPROACH</p></span>
+    <h1>1. Brute Force (Pure Recursion)</h1>
     <div class="row">
-      <div class="col col-exact">
-        <h2>Exact (4)</h2>
-        <p>Always return the true optimum. Differ in <b>how</b> they search and <b>memory</b> needed.</p>
-        <ul>
-          <li>Brute Force — recursion, no caching</li>
-          <li>Memoization — top-down DP, cached</li>
-          <li>Tabulation — bottom-up DP, recoverable items</li>
-          <li>Space-Optimised DP — O(W) memory</li>
-        </ul>
+      <div class="left">
+        <h3>How it works</h3>
+        <p>For each item: <b>take it</b> or <b>skip it</b>. Recurse on the remaining n−1 items, return the max of the two branches. No caching — every subproblem is re-solved from scratch.</p>
+        <div class="complexity"><p>Time: O(2ⁿ) &nbsp;&nbsp;|&nbsp;&nbsp; Space: O(n) recursion stack</p></div>
+        <h3>Pros</h3>
+        <ul><li>Trivial correctness; useful as a reference for testing other algorithms.</li>
+            <li>No data structures, no memory pressure.</li></ul>
+        <h3>Cons</h3>
+        <ul><li>Explodes after n ≈ 25 (2²⁵ ≈ 33 million calls).</li>
+            <li>Same subproblem solved many times.</li></ul>
       </div>
-      <div class="col col-approx">
-        <h2>Approximation (2)</h2>
-        <p>Trade a bounded amount of accuracy for huge speed/memory savings.</p>
-        <ul>
-          <li>Greedy — value/weight ratio, ≥ OPT/2</li>
-          <li>FPTAS — scaled DP, ≥ (1−ε)·OPT, tunable</li>
-        </ul>
+      <div class="right">
+        <h3>Core Logic</h3>
+        <pre><span class="kw">def</span> <span class="fn">solve</span>(i, w):
+    <span class="kw">if</span> i == 0 <span class="kw">or</span> w == 0:
+        <span class="kw">return</span> 0
+    <span class="kw">if</span> weights[i-1] &gt; w:
+        <span class="kw">return</span> solve(i-1, w)
+    <span class="kw">return</span> max(
+        solve(i-1, w),
+        values[i-1] + solve(i-1,
+                       w - weights[i-1])
+    )</pre>
       </div>
-    </div>
-    <div class="tradeoff">
-      <p>Three axes to trade off: <b>time</b> ↔ <b>memory</b> ↔ <b>accuracy</b>. Picking the right algorithm depends on which axis is the binding constraint for your input.</p>
     </div>
   </div>
-  <div class="footer"><p>0/1 Knapsack — Empirical Comparison</p><p>4 / 15</p></div>
+  <div class="footer"><p>0/1 Knapsack — Empirical Comparison</p><p>4 / 13</p></div>
 </body>
 </html>

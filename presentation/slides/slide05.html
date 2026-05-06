@@ -8,54 +8,61 @@ body {
   background: #F4F6F6; font-family: Arial, sans-serif;
   display: flex; flex-direction: column;
 }
-.header-bar { background: #e74c3c; height: 8pt; width: 100%; }
+.header-bar { background: #2ecc71; height: 8pt; width: 100%; }
 .content { flex: 1; padding: 14pt 30pt 8pt 30pt; }
-.tag { display: inline-block; background: #e74c3c; color: #FFFFFF; font-size: 9pt;
+.tag { display: inline-block; background: #2ecc71; color: #FFFFFF; font-size: 9pt;
        padding: 2pt 8pt; border-radius: 3pt; margin-bottom: 6pt; letter-spacing: 1pt; }
 .tag p { margin: 0; color: #FFFFFF; font-size: 9pt; }
 h1 { color: #1C2833; font-size: 22pt; margin: 0 0 10pt 0; }
 .row { display: flex; gap: 12pt; }
 .left { flex: 1.2; }
 .right { flex: 1; background: #1C2833; padding: 10pt 14pt; }
-.left h3 { color: #B03A2E; font-size: 12pt; margin: 0 0 3pt 0; }
+.left h3 { color: #239B56; font-size: 12pt; margin: 0 0 3pt 0; }
 .left p, .left li { color: #1C2833; font-size: 11pt; line-height: 1.4; }
 .left ul { margin: 0 0 6pt 0; padding-left: 16pt; }
-.right h3 { color: #FFFFFF; font-size: 11pt; margin: 0 0 5pt 0; }
-.right p { color: #ECF0F1; font-size: 10pt; margin: 0 0 5pt 0; line-height: 1.35; font-family: 'Courier New', monospace; }
-.right .ok { color: #2ECC71; }
-.complexity { background: #FDEDEC; padding: 6pt 10pt; margin: 6pt 0; }
-.complexity p { color: #B03A2E; font-size: 11pt; margin: 0; font-family: 'Courier New', monospace; }
-.footer { background: #e74c3c; padding: 6pt 36pt; display: flex; justify-content: space-between; }
+.right h3 { color: #FFFFFF; font-size: 11pt; margin: 0 0 6pt 0; }
+.right pre { color: #ECF0F1; font-size: 9.5pt; margin: 0; line-height: 1.5;
+             font-family: 'Courier New', monospace; white-space: pre; }
+.kw { color: #2ecc71; }
+.fn { color: #3498db; }
+.complexity { background: #E8F8F0; padding: 6pt 10pt; margin: 6pt 0; }
+.complexity p { color: #239B56; font-size: 11pt; margin: 0; font-family: 'Courier New', monospace; }
+.footer { background: #2ecc71; padding: 6pt 36pt; display: flex; justify-content: space-between; }
 .footer p { color: #FFFFFF; font-size: 10pt; margin: 0; }
 </style>
 </head>
 <body>
   <div class="header-bar"></div>
   <div class="content">
-    <span class="tag"><p>NAIVE APPROACH</p></span>
-    <h1>1. Brute Force (Pure Recursion)</h1>
+    <span class="tag"><p>EXACT — BOTTOM-UP DP</p></span>
+    <h1>2. Tabulation</h1>
     <div class="row">
       <div class="left">
         <h3>How it works</h3>
-        <p>For each item: <b>take it</b> or <b>skip it</b>. Recurse on the remaining n−1 items, return the max of the two branches. No caching — every subproblem is re-solved from scratch.</p>
-        <div class="complexity"><p>Time: O(2ⁿ) &nbsp;&nbsp;|&nbsp;&nbsp; Space: O(n) recursion stack</p></div>
+        <p>Build a 2-D table tab[i][w] iteratively from i = 0…n and w = 0…W. Each cell is the optimum using the first i items with capacity w. No recursion, no stack overhead.</p>
+        <div class="complexity"><p>Time: O(n · W) &nbsp;&nbsp;|&nbsp;&nbsp; Space: O(n · W)</p></div>
         <h3>Pros</h3>
-        <ul><li>Trivial correctness; useful as a reference for testing other algorithms.</li>
-            <li>No data structures, no memory pressure.</li></ul>
+        <ul><li>Iterative — fastest in practice among the exact DPs (no call overhead).</li>
+            <li>The full table lets us <b>backtrack and reconstruct the chosen items</b>.</li></ul>
         <h3>Cons</h3>
-        <ul><li>Explodes after n ≈ 25 (2²⁵ ≈ 33 million calls).</li>
-            <li>Same subproblem solved many times.</li></ul>
+        <ul><li>Same O(nW) memory as memoization.</li>
+            <li>Computes every cell, even ones the recursion would have skipped.</li></ul>
       </div>
       <div class="right">
-        <h3>Output on baseline (n=4, W=50)</h3>
-        <p>values  = [60, 100, 120, 80]</p>
-        <p>weights = [10,  20,  30, 25]</p>
-        <p class="ok">value = 220</p>
-        <p class="ok">items = [1, 2]   ← items 100+120</p>
-        <p class="ok">weight= 50  &nbsp;(exact fit)</p>
+        <h3>Core Logic</h3>
+        <pre><span class="kw">for</span> i <span class="kw">in</span> range(1, n+1):
+  <span class="kw">for</span> w <span class="kw">in</span> range(W+1):
+    <span class="kw">if</span> weights[i-1] &gt; w:
+      dp[i][w] = dp[i-1][w]
+    <span class="kw">else</span>:
+      dp[i][w] = max(
+        dp[i-1][w],
+        values[i-1] +
+          dp[i-1][w - weights[i-1]]
+      )</pre>
       </div>
     </div>
   </div>
-  <div class="footer"><p>0/1 Knapsack — Empirical Comparison</p><p>5 / 15</p></div>
+  <div class="footer"><p>0/1 Knapsack — Empirical Comparison</p><p>5 / 13</p></div>
 </body>
 </html>
