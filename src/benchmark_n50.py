@@ -14,10 +14,12 @@ from src.parse_kp                   import parse_kp
 
 KPLIB_ROOT         = os.path.join(_ROOT, 'testcases', 'kplib')
 RESULTS_DIR        = os.path.join(_ROOT, 'results')
-MAX_N              = 50
-INSTANCES_PER_LEAF = 3
+MAX_N              = 100
+INSTANCES_PER_LEAF = 5
 FPTAS_EPSILON      = 0.25
 BF_MAX_N           = 25
+MEMO_MAX_NW        = 8_000_000     # avoid pathological memoization runs
+TAB_MAX_NW         = 12_000_000
 
 FIELDNAMES = [
     'category', 'n_label', 'ratio', 'instance',
@@ -50,8 +52,8 @@ def _run_fptas(n, capacity, values, weights):
 
 ALGORITHMS = [
     ('BruteForce',     _run_bf,     lambda n, W: n > BF_MAX_N),
-    ('Memoization',    _run_memo,   lambda n, W: False),
-    ('Tabulation',     _run_tab,    lambda n, W: False),
+    ('Memoization',    _run_memo,   lambda n, W: n * W > MEMO_MAX_NW),
+    ('Tabulation',     _run_tab,    lambda n, W: n * W > TAB_MAX_NW),
     # ('SpaceOptimised', _run_spopt,  lambda n, W: False),  # deprecated
     ('Greedy',         _run_greedy, lambda n, W: False),
     ('FPTAS',          _run_fptas,  lambda n, W: False),
