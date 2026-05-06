@@ -9,15 +9,20 @@ body {
   display: flex; flex-direction: column;
 }
 .header-bar { background: #1A5490; height: 8pt; width: 100%; }
-.content { flex: 1; display: flex; align-items: center; justify-content: center; padding: 10pt 20pt; }
-.content img { width: 100%; height: 100%; object-fit: contain; }
+.content { flex: 1; padding: 14pt 30pt 8pt 30pt; display: flex; flex-direction: column; }
+h1 { color: #1C2833; font-size: 22pt; margin: 0 0 8pt 0; }
+.chart { flex: 1; background: #FFFFFF; padding: 6pt; box-shadow: 1px 1px 4px rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; }
+.chart img { width: 100%; height: 100%; object-fit: contain; }
 .footer { background: #1A5490; padding: 6pt 36pt; display: flex; justify-content: space-between; }
 .footer p { color: #FFFFFF; font-size: 10pt; margin: 0; }
 </style>
 </head>
 <body>
   <div class="header-bar"></div>
-  <div class="content"><img src="fig2_runtime_vs_W.png" alt="runtime vs W"/></div>
+  <div class="content">
+    <h1>Results: Runtime vs Capacity W</h1>
+    <div class="chart"><img src="fig2_runtime_vs_W.png" alt="runtime vs W"/></div>
+  </div>
   <div class="footer"><p>0/1 Knapsack — Empirical Comparison</p><p>12 / 13</p></div>
 </body>
 </html>
