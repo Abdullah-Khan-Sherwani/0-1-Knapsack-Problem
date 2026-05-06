@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.algorithms.brute_force     import knapsack_brute_force
 from src.algorithms.memoization     import knapsack_memoization
 from src.algorithms.tabulation      import knapsack_tabulation
-from src.algorithms.space_optimised import knapsack_space_optimised
+# from src.algorithms.space_optimised import knapsack_space_optimised  # deprecated
 from src.algorithms.greedy          import knapsack_greedy
 from src.algorithms.fptas           import knapsack_fptas
 
@@ -52,7 +52,7 @@ def run_exact(name, values, weights, capacity, expected):
         "BruteForce": knapsack_brute_force(capacity, n, values, weights)[0],
         "Memoization": knapsack_memoization(capacity, n, values, weights, memo)[0],
         "Tabulation": knapsack_tabulation(capacity, values, weights)[0],
-        "SpaceOpt":  knapsack_space_optimised(values, weights, n, capacity),
+        # "SpaceOpt": knapsack_space_optimised(...)  # deprecated
     }
 
     tab_val, tab_items = knapsack_tabulation(capacity, values, weights)
@@ -100,7 +100,7 @@ def run_approx(name, values, weights, capacity, opt):
         failures.append((name, "Greedy-OPT/2", f">={opt/2:.1f}", gr))
 
     for eps in [0.1, 0.25, 0.5]:
-        ft = knapsack_fptas(capacity, values, weights, epsilon=eps)
+        ft, _ = knapsack_fptas(capacity, values, weights, epsilon=eps)
         floor = (1 - eps) * opt
         ft_ok = (opt == 0) or (ft >= floor - 1)
         total_tests += 1
@@ -110,7 +110,7 @@ def run_approx(name, values, weights, capacity, opt):
             failures.append((name, f"FPTAS-eps={eps}", f">={floor:.0f}", ft))
 
     print(f"    {name:<40} OPT={opt}  Greedy={gr}(gap={gap:.1f}%,'OK' if opt2_ok else 'XX')  "
-          f"FPTAS-0.25={knapsack_fptas(capacity, values, weights, 0.25)}")
+          f"FPTAS-0.25={knapsack_fptas(capacity, values, weights, 0.25)[0]}")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -232,9 +232,9 @@ def main():
         ("Memo — n=0",       knapsack_memoization(50, 0, [], [],
                                 [[None]*51 for _ in range(1)])[0]),
         ("Tab  — n=0",       knapsack_tabulation(50, [], [])[0]),
-        ("SpOp — n=0",       knapsack_space_optimised([], [], 0, 50)),
+        # ("SpOp — n=0",  knapsack_space_optimised([], [], 0, 50)),  # deprecated
         ("Grdy — n=0",       knapsack_greedy(50, [], [])[0]),
-        ("FPTAS— n=0",       knapsack_fptas(50, [], [], 0.25)),
+        ("FPTAS— n=0",       knapsack_fptas(50, [], [], 0.25)[0]),
     ]:
         ok = func_result == 0
         total_tests += 1
@@ -288,7 +288,7 @@ def main():
         if copt is None:
             copt = knapsack_tabulation(ccap, cv, cw)[0]
         for eps in [0.1, 0.25, 0.5]:
-            ft = knapsack_fptas(ccap, cv, cw, epsilon=eps)
+            ft, _ = knapsack_fptas(ccap, cv, cw, epsilon=eps)
             floor = (1 - eps) * copt
             ok = (copt == 0) or (ft >= floor - 1)
             total_tests += 1
@@ -299,30 +299,26 @@ def main():
     # ── 6. PERFORMANCE TABLE ──────────────────────────────────────────────────
     print_section("6. PERFORMANCE ANALYSIS")
     print_subsection("6a. Exact Algorithms — increasing n (W=1000, random items)")
-    print(f"\n    {'n':>5} {'BF (µs)':>12} {'Memo (µs)':>12} {'Tab (µs)':>12} {'SpOp (µs)':>12} {'Memo mem(KB)':>14}")
-    print(f"    {'-'*5} {'-'*12} {'-'*12} {'-'*12} {'-'*12} {'-'*14}")
+    print(f"\n    {'n':>5} {'BF (µs)':>12} {'Memo (µs)':>12} {'Tab (µs)':>12} {'Memo mem(KB)':>14}")
+    print(f"    {'-'*5} {'-'*12} {'-'*12} {'-'*12} {'-'*14}")
 
     W_perf = 1000
     for n_perf in [5, 8, 10, 12, 15, 18, 20]:
         v_p, w_p = gen_random(n_perf, W_perf)
-        memo_p   = [[None]*(W_perf+1) for _ in range(n_perf+1)]
 
         t_bf   = time_func(lambda: knapsack_brute_force(W_perf, n_perf, v_p, w_p))
         t_mem  = time_func(lambda: knapsack_memoization(W_perf, n_perf, v_p, w_p,
                               [[None]*(W_perf+1) for _ in range(n_perf+1)]))
         t_tab  = time_func(lambda: knapsack_tabulation(W_perf, v_p, w_p))
-        t_sp   = time_func(lambda: knapsack_space_optimised(v_p, w_p, n_perf, W_perf))
         mem_kb = measure_peak_memory_kb(lambda: knapsack_memoization(W_perf, n_perf, v_p, w_p,
                               [[None]*(W_perf+1) for _ in range(n_perf+1)]))
 
-        print(f"    {n_perf:>5} {t_bf:>12.1f} {t_mem:>12.1f} {t_tab:>12.1f} {t_sp:>12.1f} {mem_kb:>14.1f}")
+        print(f"    {n_perf:>5} {t_bf:>12.1f} {t_mem:>12.1f} {t_tab:>12.1f} {mem_kb:>14.1f}")
 
     print_subsection("6b. DP Algorithms only — larger n (W=500, brute-force excluded)")
-    print(f"\n    {'n':>6} {'W':>6} {'Memo (ms)':>11} {'Tab (ms)':>11} {'SpOp (ms)':>11} {'SpOp mem(KB)':>14}")
-    print(f"    {'-'*6} {'-'*6} {'-'*11} {'-'*11} {'-'*11} {'-'*14}")
+    print(f"\n    {'n':>6} {'W':>6} {'Memo (ms)':>11} {'Tab (ms)':>11}")
+    print(f"    {'-'*6} {'-'*6} {'-'*11} {'-'*11}")
 
-    # Memoization recursion depth = n; default Python limit is 1000.
-    # Capping at n=800 (temporarily raise limit to avoid RecursionError in test).
     old_rlimit = sys.getrecursionlimit()
     sys.setrecursionlimit(2000)
     for n_p, W_p in [(50,500),(100,500),(200,500),(500,500),(800,500)]:
@@ -330,22 +326,18 @@ def main():
         t_mem = time_func(lambda: knapsack_memoization(W_p, n_p, v_p, w_p,
                           [[None]*(W_p+1) for _ in range(n_p+1)]), runs=2) / 1000
         t_tab = time_func(lambda: knapsack_tabulation(W_p, v_p, w_p), runs=2) / 1000
-        t_sp  = time_func(lambda: knapsack_space_optimised(v_p, w_p, n_p, W_p), runs=2) / 1000
-        mem_sp = measure_peak_memory_kb(lambda: knapsack_space_optimised(v_p, w_p, n_p, W_p))
-        print(f"    {n_p:>6} {W_p:>6} {t_mem:>11.3f} {t_tab:>11.3f} {t_sp:>11.3f} {mem_sp:>14.1f}")
+        print(f"    {n_p:>6} {W_p:>6} {t_mem:>11.3f} {t_tab:>11.3f}")
     sys.setrecursionlimit(old_rlimit)
 
     print_subsection("6c. Capacity scaling — n=50 fixed, W increasing")
-    print(f"\n    {'W':>8} {'Tab (ms)':>10} {'SpOp (ms)':>11} {'Tab mem(KB)':>13} {'SpOp mem(KB)':>14}")
-    print(f"    {'-'*8} {'-'*10} {'-'*11} {'-'*13} {'-'*14}")
+    print(f"\n    {'W':>8} {'Tab (ms)':>10} {'Tab mem(KB)':>13}")
+    print(f"    {'-'*8} {'-'*10} {'-'*13}")
     n_fixed = 50
     for W_scale in [100, 500, 1000, 5000, 10000]:
         v_s, w_s = gen_random(n_fixed, W_scale)
         t_tab = time_func(lambda: knapsack_tabulation(W_scale, v_s, w_s), runs=2) / 1000
-        t_sp  = time_func(lambda: knapsack_space_optimised(v_s, w_s, n_fixed, W_scale), runs=2) / 1000
-        mem_t  = measure_peak_memory_kb(lambda: knapsack_tabulation(W_scale, v_s, w_s))
-        mem_sp = measure_peak_memory_kb(lambda: knapsack_space_optimised(v_s, w_s, n_fixed, W_scale))
-        print(f"    {W_scale:>8} {t_tab:>10.3f} {t_sp:>11.3f} {mem_t:>13.1f} {mem_sp:>14.1f}")
+        mem_t = measure_peak_memory_kb(lambda: knapsack_tabulation(W_scale, v_s, w_s))
+        print(f"    {W_scale:>8} {t_tab:>10.3f} {mem_t:>13.1f}")
 
     # ── 7. RECURSION / OVERFLOW RISK ─────────────────────────────────────────
     print_section("7. FAILURE DETECTION — Recursion & Memory Risks")
@@ -402,12 +394,7 @@ def main():
     mem_tab = measure_peak_memory_kb(lambda: knapsack_tabulation(W_mem, v_lw, w_lw))
     print(f" peak={mem_tab:.0f} KB  (~{mem_tab/1024:.1f} MB)")
 
-    W_huge = 1_000_000
-    n_huge = 5
-    print(f"\n    [SpaceOpt]   n={n_huge}, W={W_huge} (array={W_huge+1:,} cells) ...", end="", flush=True)
-    v_hu, w_hu = gen_random(n_huge, W_huge)
-    mem_sp_hu = measure_peak_memory_kb(lambda: knapsack_space_optimised(v_hu, w_hu, n_huge, W_huge))
-    print(f" peak={mem_sp_hu:.0f} KB  (~{mem_sp_hu/1024:.1f} MB)")
+    # SpaceOptimised memory test removed — deprecated
 
     # ── 8. USE CASE COVERAGE ─────────────────────────────────────────────────
     print_section("8. USE-CASE COVERAGE")
@@ -438,11 +425,10 @@ def main():
             knapsack_brute_force(sc, n_uc, sv, sw)[0],
             knapsack_memoization(sc, n_uc, sv, sw, memo_uc)[0],
             opt,
-            knapsack_space_optimised(sv, sw, n_uc, sc),
         ]
         all_match = len(set(exact)) == 1
-        total_tests += 4
-        if all_match: total_pass += 4
+        total_tests += 3
+        if all_match: total_pass += 3
         else:
             failures.append((scenario, "Consistency", f"all={opt}", str(set(exact))))
         print(f"    {scenario:<40} {opt:<6} {'OK' if all_match else 'XX '+str(set(exact))}")
@@ -454,8 +440,8 @@ def main():
         "testcases", "kplib", "00Uncorrelated", "n00050", "R01000"
     )
     kp_files = [f"s{str(i).zfill(3)}.kp" for i in range(5)]
-    print(f"\n    {'File':<12} {'n':>4} {'W':>8} {'Tab OPT':>9} {'SpOp':>7} {'Memo':>7} {'Match'}")
-    print(f"    {'-'*12} {'-'*4} {'-'*8} {'-'*9} {'-'*7} {'-'*7} {'-'*7}")
+    print(f"\n    {'File':<12} {'n':>4} {'W':>8} {'Tab OPT':>9} {'Memo':>7} {'Match'}")
+    print(f"    {'-'*12} {'-'*4} {'-'*8} {'-'*9} {'-'*7} {'-'*7}")
     for fname in kp_files:
         fpath = os.path.join(kplib_base, fname)
         if not os.path.isfile(fpath):
@@ -463,14 +449,13 @@ def main():
             continue
         kn, kW, kv, kw = parse_kp(fpath)
         tab_opt, _ = knapsack_tabulation(kW, kv, kw)
-        sp_opt     = knapsack_space_optimised(kv, kw, kn, kW)
         kmemo      = [[None]*(kW+1) for _ in range(kn+1)]
         m_opt, _   = knapsack_memoization(kW, kn, kv, kw, kmemo)
-        match = (tab_opt == sp_opt == m_opt)
-        total_tests += 3
-        if match: total_pass += 3
-        else: failures.append((fname, "kplib-consistency", str(tab_opt), str({sp_opt, m_opt})))
-        print(f"    {fname:<12} {kn:>4} {kW:>8} {tab_opt:>9} {sp_opt:>7} {m_opt:>7} {'OK' if match else 'XX'}")
+        match = (tab_opt == m_opt)
+        total_tests += 2
+        if match: total_pass += 2
+        else: failures.append((fname, "kplib-consistency", str(tab_opt), str(m_opt)))
+        print(f"    {fname:<12} {kn:>4} {kW:>8} {tab_opt:>9} {m_opt:>7} {'OK' if match else 'XX'}")
 
     # ── FINAL VERDICT ────────────────────────────────────────────────────────
     print_section("FINAL VERDICT")

@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.algorithms.brute_force     import knapsack_brute_force
 from src.algorithms.memoization     import knapsack_memoization
 from src.algorithms.tabulation      import knapsack_tabulation
-from src.algorithms.space_optimised import knapsack_space_optimised
+# from src.algorithms.space_optimised import knapsack_space_optimised  # deprecated
 from src.algorithms.greedy          import knapsack_greedy
 
 
@@ -32,7 +32,7 @@ def run_demo():
         ("Brute Force",     lambda: knapsack_brute_force(capacity, n, values, weights),         True),
         ("Memoization",     lambda: knapsack_memoization(capacity, n, values, weights, memo),   True),
         ("Tabulation",      lambda: knapsack_tabulation(capacity, values, weights),             True),
-        ("Space-Optimised", lambda: knapsack_space_optimised(values, weights, n, capacity),     False),
+        # ("Space-Optimised", lambda: knapsack_space_optimised(values, weights, n, capacity), False),  # deprecated
         ("Greedy Approx.",  lambda: knapsack_greedy(capacity, values, weights),                 True),
     ]
 

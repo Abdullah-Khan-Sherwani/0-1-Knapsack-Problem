@@ -7,7 +7,7 @@ sys.path.insert(0, _ROOT)
 from src.algorithms.brute_force     import knapsack_brute_force
 from src.algorithms.memoization     import knapsack_memoization
 from src.algorithms.tabulation      import knapsack_tabulation
-from src.algorithms.space_optimised import knapsack_space_optimised
+# from src.algorithms.space_optimised import knapsack_space_optimised  # deprecated
 from src.algorithms.greedy          import knapsack_greedy
 from src.algorithms.fptas           import knapsack_fptas
 from src.parse_kp                   import parse_kp
@@ -41,21 +41,18 @@ def _run_memo(n, capacity, values, weights):
 def _run_tab(n, capacity, values, weights):
     return knapsack_tabulation(capacity, values, weights)[0]
 
-def _run_spopt(n, capacity, values, weights):
-    return knapsack_space_optimised(values, weights, n, capacity)
-
 def _run_greedy(n, capacity, values, weights):
     return knapsack_greedy(capacity, values, weights)[0]
 
 def _run_fptas(n, capacity, values, weights):
-    return knapsack_fptas(capacity, values, weights, epsilon=FPTAS_EPSILON)
+    return knapsack_fptas(capacity, values, weights, epsilon=FPTAS_EPSILON)[0]
 
 
 ALGORITHMS = [
     ('BruteForce',     _run_bf,     lambda n, W: n > BF_MAX_N),
     ('Memoization',    _run_memo,   lambda n, W: False),
     ('Tabulation',     _run_tab,    lambda n, W: False),
-    ('SpaceOptimised', _run_spopt,  lambda n, W: False),
+    # ('SpaceOptimised', _run_spopt,  lambda n, W: False),  # deprecated
     ('Greedy',         _run_greedy, lambda n, W: False),
     ('FPTAS',          _run_fptas,  lambda n, W: False),
 ]
@@ -154,7 +151,7 @@ def run():
 
                 # Exact consistency check
                 exact = {k: v for k, v in alg_results.items()
-                         if k in ('BruteForce','Memoization','Tabulation','SpaceOptimised')}
+                         if k in ('BruteForce', 'Memoization', 'Tabulation')}
                 if len(set(exact.values())) > 1:
                     print(f'           [MISMATCH] {exact}', flush=True)
 

@@ -6,7 +6,7 @@ sys.path.insert(0, _ROOT)
 
 from src.algorithms.memoization     import knapsack_memoization
 from src.algorithms.tabulation      import knapsack_tabulation
-from src.algorithms.space_optimised import knapsack_space_optimised
+# from src.algorithms.space_optimised import knapsack_space_optimised  # deprecated
 from src.algorithms.greedy          import knapsack_greedy
 from src.algorithms.fptas           import knapsack_fptas
 from src.parse_kp                   import parse_kp
@@ -36,20 +36,17 @@ def _run_memo(n, capacity, values, weights):
 def _run_tab(n, capacity, values, weights):
     return knapsack_tabulation(capacity, values, weights)[0]
 
-def _run_spopt(n, capacity, values, weights):
-    return knapsack_space_optimised(values, weights, n, capacity)
-
 def _run_greedy(n, capacity, values, weights):
     return knapsack_greedy(capacity, values, weights)[0]
 
 def _run_fptas(n, capacity, values, weights):
-    return knapsack_fptas(capacity, values, weights, epsilon=FPTAS_EPSILON)
+    return knapsack_fptas(capacity, values, weights, epsilon=FPTAS_EPSILON)[0]
 
 
 ALGORITHMS = [
     ('Memoization',    _run_memo),
     ('Tabulation',     _run_tab),
-    ('SpaceOptimised', _run_spopt),
+    # ('SpaceOptimised', _run_spopt),  # deprecated
     ('Greedy',         _run_greedy),
     ('FPTAS',          _run_fptas),
 ]
@@ -132,7 +129,7 @@ def run():
                         algorithm=alg_name, runtime_ms=round(ms, 4), result=res,
                     ))
                     total_rows += 1
-                    if alg_name in ('Memoization', 'Tabulation', 'SpaceOptimised'):
+                    if alg_name in ('Memoization', 'Tabulation'):
                         exact_results[alg_name] = res
 
                 # Consistency check

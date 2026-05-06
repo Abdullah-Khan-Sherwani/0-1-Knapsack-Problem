@@ -5,7 +5,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.algorithms.brute_force     import knapsack_brute_force
 from src.algorithms.memoization     import knapsack_memoization
 from src.algorithms.tabulation      import knapsack_tabulation
-from src.algorithms.space_optimised import knapsack_space_optimised
+# from src.algorithms.space_optimised import knapsack_space_optimised  # deprecated
 from src.algorithms.greedy          import knapsack_greedy
 from src.algorithms.fptas           import knapsack_fptas
 
@@ -47,13 +47,7 @@ def test_case(name, values, weights, capacity, expected_optimal):
     print(f"  items={sorted(items)}  weight={sum(weights[i] for i in items)}/{capacity}")
     if not ok: failed.append('Tabulation')
 
-    # Space-Optimised
-    sp = knapsack_space_optimised(values, weights, n, capacity)
-    results['SpaceOpt'] = sp
-    ok = sp == expected_optimal
-    print(f"Space-Optimised     : {sp:<6}  {'PASS' if ok else 'FAIL'}")
-    if not ok: failed.append('SpaceOpt')
-
+    # Space-Optimised — deprecated, removed
     # Greedy — check OPT/2 guarantee
     gr, gr_items = knapsack_greedy(capacity, values, weights)
     results['Greedy'] = gr
@@ -63,22 +57,21 @@ def test_case(name, values, weights, capacity, expected_optimal):
     if not opt2_ok: failed.append('Greedy-OPT/2')
 
     # FPTAS — check (1-eps)*OPT guarantee
-    ft = knapsack_fptas(capacity, values, weights, epsilon=FPTAS_EPSILON)
+    ft, ft_items = knapsack_fptas(capacity, values, weights, epsilon=FPTAS_EPSILON)
     results['FPTAS'] = ft
     floor = (1 - FPTAS_EPSILON) * expected_optimal
     ft_ok = ft >= floor - 1  # allow 1-unit rounding slack
-    print(f"FPTAS (eps={FPTAS_EPSILON})     : {ft:<6}  floor={floor:.0f}  guarantee={'PASS' if ft_ok else 'FAIL'}")
+    print(f"FPTAS (eps={FPTAS_EPSILON})     : {ft:<6}  items={sorted(ft_items)}  floor={floor:.0f}  guarantee={'PASS' if ft_ok else 'FAIL'}")
     if not ft_ok: failed.append('FPTAS-guarantee')
 
     # Exact algorithms must all agree
-    exact = [results['BruteForce'], results['Memoization'],
-             results['Tabulation'], results['SpaceOpt']]
+    exact = [results['BruteForce'], results['Memoization'], results['Tabulation']]
     if len(set(exact)) == 1 and exact[0] == expected_optimal:
         print(f"Exact consistency   : PASS (all={expected_optimal})")
     elif len(set(exact)) == 1:
         print(f"Exact consistency   : WARN all agree={exact[0]} but expected={expected_optimal}")
     else:
-        print(f"Exact consistency   : FAIL {dict(zip(['BF','Memo','Tab','SP'], exact))}")
+        print(f"Exact consistency   : FAIL {dict(zip(['BF','Memo','Tab'], exact))}")
         failed.append('consistency')
 
     if failed:

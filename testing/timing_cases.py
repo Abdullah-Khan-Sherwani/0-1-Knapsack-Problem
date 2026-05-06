@@ -27,7 +27,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.algorithms.brute_force     import knapsack_brute_force
 from src.algorithms.memoization     import knapsack_memoization
 from src.algorithms.tabulation      import knapsack_tabulation
-from src.algorithms.space_optimised import knapsack_space_optimised
+# from src.algorithms.space_optimised import knapsack_space_optimised  # deprecated
 from src.algorithms.greedy          import knapsack_greedy
 from src.algorithms.fptas           import knapsack_fptas
 
@@ -145,22 +145,8 @@ print(f"  Worst        all weights = 1 (every cell max())      {t_tb_worst:>10.4
 print(f"\n  Ratio worst/best: {t_tb_worst/t_tb_best:.2f}x  (nearly constant — DP is O(n*W) regardless)")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# 4. SPACE-OPTIMISED  — n=100, W=500
-# ─────────────────────────────────────────────────────────────────────────────
-header("SPACE-OPTIMISED  — n=100, W=500")
-print(f"  Case         Description                              Time (ms)")
-print(f"  ------------ ---------------------------------------- ----------")
-
-v_sb = [1]*N2;  w_sb = [W2+1]*N2
-t_sb_best  = ms(lambda: knapsack_space_optimised(v_sb, w_sb, N2, W2))
-t_sb_avg   = ms(lambda: knapsack_space_optimised(v2,   w2,   N2, W2))
-v_sw = [1]*N2;  w_sw = [1]*N2
-t_sb_worst = ms(lambda: knapsack_space_optimised(v_sw, w_sw, N2, W2))
-print(f"  Best         all weights > capacity                  {t_sb_best:>10.4f}")
-print(f"  Average      random weights                          {t_sb_avg:>10.4f}")
-print(f"  Worst        all weights = 1                         {t_sb_worst:>10.4f}")
-print(f"\n  Ratio worst/best: {t_sb_worst/t_sb_best:.2f}x")
+# SpaceOptimised section removed — deprecated
+t_sb_best, t_sb_avg, t_sb_worst = None, None, None
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -216,11 +202,11 @@ rows = [
     ("BruteForce",     N_BF, W_BF,  t_best,    t_avg,    t_worst),
     ("Memoization",    N_BF, W_BF,  t_best20,  t_avg20,  t_worst20),
     ("Tabulation",     N2,   W2,    t_tb_best, t_tb_avg, t_tb_worst),
-    ("SpaceOpt",       N2,   W2,    t_sb_best, t_sb_avg, t_sb_worst),
+    # ("SpaceOpt",    N2,   W2,    ...),  # deprecated
     ("Greedy",         N2,   W2,    t_gb_best, t_gb_avg, t_gb_worst),
-    ("FPTAS eps=0.25", 20,   200,   ms(lambda: knapsack_fptas(200, v_fp, w_fp, 0.9)),
-                                    ms(lambda: knapsack_fptas(200, v_fp, w_fp, 0.25)),
-                                    ms(lambda: knapsack_fptas(200, v_fp, w_fp, 0.05))),
+    ("FPTAS eps=0.25", 20,   200,   ms(lambda: knapsack_fptas(200, v_fp, w_fp, 0.9)[0]),
+                                    ms(lambda: knapsack_fptas(200, v_fp, w_fp, 0.25)[0]),
+                                    ms(lambda: knapsack_fptas(200, v_fp, w_fp, 0.05)[0])),
 ]
 for name, n, w, tb, ta, tw in rows:
     ratio = tw / tb if tb > 0 else float('inf')
