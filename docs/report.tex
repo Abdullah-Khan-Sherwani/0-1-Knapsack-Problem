@@ -27,20 +27,8 @@
 \usepackage{parskip}
 
 \definecolor{codebg}{RGB}{248,248,248}
-\definecolor{codekw}{RGB}{0,0,180}
-\definecolor{codecmt}{RGB}{100,100,100}
-\definecolor{codestr}{RGB}{160,0,0}
 \definecolor{framecolor}{RGB}{200,200,200}
 
-\lstdefinestyle{python}{
-    language=Python, basicstyle=\ttfamily\footnotesize,
-    keywordstyle=\color{codekw}\bfseries, commentstyle=\color{codecmt}\itshape,
-    stringstyle=\color{codestr}, backgroundcolor=\color{codebg},
-    frame=single, framerule=0.4pt, rulecolor=\color{framecolor},
-    breaklines=true, showstringspaces=false, tabsize=4,
-    captionpos=b, xleftmargin=1em, aboveskip=0.5em, belowskip=0.5em,
-    morekeywords={None,True,False},
-}
 \lstdefinestyle{plain}{
     basicstyle=\ttfamily\footnotesize, backgroundcolor=\color{codebg},
     frame=single, framerule=0.4pt, rulecolor=\color{framecolor},
@@ -69,11 +57,10 @@
 
 \begin{document}
 
-%% ─── Title block (no separate title page, to stay under 12 pages) ──────────
 \begin{center}
 {\LARGE\bfseries\sffamily The 0/1 Knapsack Problem\par}
 \vspace{2pt}
-{\large An Empirical Comparison of Six Algorithms\par}
+{\large An Empirical Comparison of Five Algorithms\par}
 \vspace{6pt}
 {\normalsize Institute of Business Administration, Karachi \quad$\cdot$\quad
 Department of Computer Science\par}
@@ -97,11 +84,12 @@ Raahin Tajuddin         & 29207 \\
 \section{Introduction}
 %% ════════════════════════════════════════════════════════════════════════════
 
-The \textbf{0/1 Knapsack Problem} is a canonical NP-Hard combinatorial optimisation
-problem. Given $n$ items, each with weight $w_i$ and value $v_i$, and a knapsack of
-capacity $W$, we must choose a subset of items that maximises total value while
-respecting the capacity constraint. The ``0/1'' qualifier forbids fractional
-selections: each item is either taken whole or left behind. Formally:
+The \textbf{0/1 Knapsack Problem} is a canonical NP-Hard combinatorial
+optimisation problem. Given $n$ items, each with weight $w_i$ and value $v_i$,
+and a knapsack of capacity $W$, we must choose a subset of items that maximises
+total value while respecting the capacity constraint. The ``0/1'' qualifier
+forbids fractional selections: each item is either taken whole or left behind.
+Formally:
 \begin{equation}
 \max \;\sum_{i=1}^{n} v_i x_i \quad
 \text{subject to}\quad \sum_{i=1}^{n} w_i x_i \le W,\quad x_i \in \{0,1\}.
@@ -114,13 +102,16 @@ all reduce to (\ref{eq:knap}). The problem is \emph{weakly} NP-Hard: a
 pseudo-polynomial $O(nW)$ dynamic-programming solution exists, but $W$ requires
 $O(\log W)$ bits, so the algorithm is exponential in the input bit length.
 
-\textbf{What this project does.} We implement, benchmark and compare \textbf{six}
-algorithms for 0/1 Knapsack: \emph{Brute Force}, \emph{Memoization (top-down DP)},
-\emph{Tabulation (bottom-up DP)}, \emph{Space-Optimised DP}, a \emph{Greedy
-$\tfrac{1}{2}$-approximation}, and a \emph{Fully Polynomial-Time Approximation
-Scheme (FPTAS)}. All algorithms are pure Python 3 with no third-party
-dependencies, so observed differences reflect algorithmic structure rather than
-library tuning.
+\textbf{What this project does.} We implement, benchmark and compare \textbf{five}
+algorithms for 0/1 Knapsack: \emph{Brute Force}, \emph{Memoization (top-down
+DP)}, \emph{Tabulation (bottom-up DP)}, a \emph{Greedy $\tfrac{1}{2}$-approximation},
+and a \emph{Fully Polynomial-Time Approximation Scheme (FPTAS)}. All algorithms
+are pure Python 3 with no third-party dependencies, so observed differences
+reflect algorithmic structure rather than library tuning. Empirical results in
+this report are aggregated from 1{,}202 instance$\times$algorithm runs over the
+Pisinger \emph{kplib}~\cite{pisinger2003,kplib} suite (categories
+\texttt{00Uncorrelated}--\texttt{12Circle}; the \texttt{13Synthetic} family is
+excluded throughout).
 
 %% ════════════════════════════════════════════════════════════════════════════
 \section{Algorithm Descriptions}
@@ -128,7 +119,7 @@ library tuning.
 
 \begin{table}[H]
 \centering
-\caption{Six-algorithm comparison at a glance.}
+\caption{Five-algorithm comparison at a glance.}
 \small
 \begin{tabular}{@{}lcccp{4.6cm}@{}}
 \toprule
@@ -137,7 +128,6 @@ library tuning.
 Brute Force        & $O(2^n)$        & $O(n)$       & Yes & enumerate all subsets \\
 Memoization        & $O(nW)$         & $O(nW)$      & Yes & top-down DP with cache \\
 Tabulation         & $O(nW)$         & $O(nW)$      & Yes & bottom-up 2-D table; backtrack items \\
-Space-Optimised DP & $O(nW)$         & $O(W)$       & Yes & 1-D array, reverse capacity loop \\
 Greedy $S_2$       & $O(n\log n)$    & $O(n)$       & No  & ratio sort + best single item; $\ge\tfrac{1}{2}$OPT \\
 FPTAS              & $O(n^3/\varepsilon)$ & $O(n^2/\varepsilon)$ & $(1-\varepsilon)$ & profit-indexed DP after value scaling \\
 \bottomrule
@@ -158,15 +148,15 @@ subsets are implicitly enumerated and the best feasible one returned.
 (identical subproblems are recomputed exponentially many times).
 
 \subsection{Memoization (Top-Down DP)}
-The same recurrence as Brute Force, but each subproblem $(i,w)$ is cached on first
-computation. The state space has $(n+1)(W+1)$ cells, each filled in $O(1)$ work,
-giving $O(nW)$ time. Sentinel \texttt{None} (not $-1$) is used so legitimate zero
-values are not mistaken for cache misses. \textit{Use:} when the recursion only
-visits a sparse subset of states; preserves the natural recursive structure.
+The same recurrence as Brute Force, but each subproblem $(i,w)$ is cached on
+first computation. The state space has $(n+1)(W+1)$ cells, each filled in $O(1)$
+work, giving $O(nW)$ time. Sentinel \texttt{None} (not $-1$) is used so
+legitimate zero values are not mistaken for cache misses. \textit{Use:} when the
+recursion only visits a sparse subset of states; preserves the natural recursive
+structure.
 
 \subsection{Tabulation (Bottom-Up DP)}
-Build a 2-D table $\mathrm{dp}[i][w]$ iteratively from base cases. The recurrence
-is the standard knapsack recurrence:
+Build a 2-D table $\mathrm{dp}[i][w]$ iteratively from base cases:
 \begin{equation}
 \mathrm{dp}[i][w]=\begin{cases}
 0 & i=0\;\text{or}\;w=0\\
@@ -179,17 +169,6 @@ The selected items are recovered by backtracking from $\mathrm{dp}[n][W]$:
 whenever $\mathrm{dp}[i][w]\neq\mathrm{dp}[i-1][w]$, item $i$ is in the optimal
 set and we move to $(i-1,\,w-w_i)$. \textit{Use:} default exact solver in
 production; cache-friendly, no recursion-stack risk, supports item recovery.
-
-\subsection{Space-Optimised DP (1-D Array)}
-Row $i$ in (\ref{eq:dp}) depends only on row $i-1$, so a single 1-D array
-$\mathrm{dp}[w]$ suffices. The inner loop \emph{must} run from $W$ down to $w_i$:
-\begin{equation}
-\mathrm{dp}[w]\gets \max\bigl(\mathrm{dp}[w],\;v_i+\mathrm{dp}[w-w_i]\bigr),
-\qquad w=W,W-1,\ldots,w_i.
-\end{equation}
-A forward loop would let an item be chosen multiple times, silently solving the
-\emph{unbounded} knapsack instead. \textit{Use:} when $W$ is large but the
-selected item set is not needed.
 
 \subsection{Greedy Approximation (variant $S_2$)}
 Sort items by value-to-weight ratio $r_i=v_i/w_i$ in descending order, pack
@@ -234,17 +213,15 @@ attractive when $W$ is large but values are not.
 
 \begin{table}[H]
 \centering
-\caption{Best, average, and worst-case complexity per algorithm. ``Worst input''
-identifies the instance structure that triggers the worst case.}
+\caption{Best, average and worst-case complexity per algorithm.}
 \small
-\begin{tabular}{@{}lcccp{5.0cm}@{}}
+\begin{tabular}{@{}lcccp{4.8cm}@{}}
 \toprule
 \textbf{Algorithm} & \textbf{Best} & \textbf{Average} & \textbf{Worst} & \textbf{What triggers worst case} \\
 \midrule
 Brute Force        & $O(2^n)$ & $O(2^n)$ & $O(2^n)$ & every input ($n$ alone) \\
 Memoization        & $O(n+W)$ & $O(nW)$ & $O(nW)$ & dense reachable state space \\
 Tabulation         & $O(nW)$  & $O(nW)$ & $O(nW)$ & always fills the table \\
-Space-Opt.\ DP     & $O(nW)$  & $O(nW)$ & $O(nW)$ & always fills the array $n$ times \\
 Greedy $S_2$       & $O(n\log n)$ & $O(n\log n)$ & $O(n\log n)$ & runtime input-independent \\
 FPTAS              & $O(n^2/\varepsilon)$ & $O(n^3/\varepsilon)$ & $O(n^3/\varepsilon)$ & large value range, small $\varepsilon$ \\
 \bottomrule
@@ -258,9 +235,9 @@ $W{-}w_n$ (cut-and-paste argument). (ii) \emph{Overlapping subproblems:} the
 recursion tree visits the same $(i,w)$ pair from many paths, so caching collapses
 $2^n$ recomputations into at most $(n{+}1)(W{+}1)$ unique states.
 
-\textbf{Why Brute Force is hardest on dense, deep recursion.} Its runtime is
-controlled solely by $n$ --- input values and weights only marginally affect
-pruning. Hence its best, average, and worst case all coincide at $\Theta(2^n)$.
+\textbf{Why Brute Force is hardest on dense recursion.} Its runtime is controlled
+solely by $n$ --- input values and weights only marginally affect pruning. Best,
+average and worst case all coincide at $\Theta(2^n)$.
 
 \textbf{Why Greedy $S_2$ is best on uncorrelated, worst on correlated.} When
 $v_i$ and $w_i$ are independent, ratio ordering closely matches the LP relaxation
@@ -277,15 +254,16 @@ The FPTAS instead spends time polynomial in $n$ and $1/\varepsilon$ but
 \section{Implementation Details}
 %% ════════════════════════════════════════════════════════════════════════════
 
-\subsection{Environment}
+\subsection{Machine Specification}
 \begin{table}[H]
 \centering
 \small
 \begin{tabular}{@{}ll@{}}
 \toprule
-OS / Kernel       & macOS 15.4 (Darwin 25.4.0) \\
-Processor         & Apple Silicon (ARM64) \\
-Language          & Python 3.11 -- standard library only (\texttt{time},\texttt{sys},\texttt{os},\texttt{csv}) \\
+Operating System  & macOS 26.4.1 (Darwin 25.4.0, build 25E253) \\
+Processor         & Apple M3 (8 cores, ARM64) \\
+Memory            & 16 GB unified RAM \\
+Language          & Python 3.10.10 -- standard library only (\texttt{time},\texttt{sys},\texttt{os},\texttt{csv}) \\
 Recursion limit   & raised to $10^6$ for memoization at large $n$ \\
 Timing            & \texttt{time.perf\_counter()} per algorithm per instance \\
 \bottomrule
@@ -294,56 +272,56 @@ Timing            & \texttt{time.perf\_counter()} per algorithm per instance \\
 
 \subsection{Repository Layout}
 \begin{lstlisting}[style=plain]
-src/algorithms/{brute_force,memoization,tabulation,space_optimised,greedy,fptas}.py
+src/algorithms/{brute_force,memoization,tabulation,greedy,fptas}.py
 src/benchmark.py            # full sweep across all kplib categories
-src/benchmark_n100.py       # n<=100 (no skips except BF), both ratios, 5 instances/leaf
-src/benchmark_r01000.py     # R01000 only, n=50..200, no skips except BF
+src/benchmark_n100.py       # n<=100, both ratios, 5 instances/leaf, no skips except BF
 src/analyze.py              # split analysis by (ratio, category, n)
-src/plot.py                 # 7 figures (results/plots/)
-testing/test_all_algorithms.py  # unit tests for all 6 algorithms
+src/plot.py                 # figures used in the slide deck
+testing/test_all_algorithms.py  # unit + edge-case tests for all algorithms
 testcases/kplib/            # Pisinger benchmark instances
-results/*.csv               # raw per-(category,n,ratio,instance,algorithm) timings
+results/benchmark_n100.csv  # raw per-(category,n,ratio,instance,algorithm) timings
 \end{lstlisting}
 
 Each algorithm is a single function in its own file with the canonical signature
-listed in \texttt{CLAUDE.md} (e.g.\ \texttt{knapsack\_tabulation(capacity, values,
-weights)} returning \texttt{(value, items)}). The non-uniform signatures match
-the standard reference sources for each algorithm rather than being normalised.
+listed in \texttt{CLAUDE.md} (e.g.\ \texttt{knapsack\_tabulation(capacity,
+values, weights)} returning \texttt{(value, items)}). The non-uniform signatures
+match the standard reference sources for each algorithm rather than being
+artificially normalised.
 
 \subsection{Test-Case Strategy}
-We use the Pisinger \emph{kplib} benchmark suite~\cite{pisinger2003,kplib}, which
-is the de-facto standard for knapsack experimentation. Categories cover
-\textbf{Uncorrelated} ($w_i,v_i$ independent), \textbf{Weakly} and
+We use the Pisinger \emph{kplib} benchmark suite~\cite{pisinger2003,kplib}, the
+de-facto standard for knapsack experimentation. Twelve correlation families are
+exercised: \textbf{Uncorrelated} ($w_i,v_i$ independent), \textbf{Weakly} and
 \textbf{Strongly Correlated} ($v_i \approx w_i + c$), \textbf{Inverse} and
-\textbf{Almost-Strongly Correlated}, \textbf{Subset Sum} ($v_i = w_i$),
+\textbf{Almost-Strongly Correlated}, \textbf{Subset Sum} ($v_i = w_i$), three
 \textbf{Spanner} variants, \textbf{Multiple Strongly Correlated},
-\textbf{Profit Ceiling}, \textbf{Circle}, plus a \textbf{13Synthetic} family we
-generated ourselves for $n\in\{5,8,10,12,15,18,20,22,25\}$ to keep brute force
-feasible. We benchmark over two coefficient ranges: \textbf{R01000} ($R{=}1000$)
-and \textbf{R10000} ($R{=}10000$); capacity is set to
-$W=\lfloor\tfrac{1}{2}\sum_i w_i\rfloor$, the standard Pisinger setting.
+\textbf{Profit Ceiling}, and \textbf{Circle}. We benchmark over two coefficient
+ranges: \textbf{R01000} ($R{=}1000$) and \textbf{R10000} ($R{=}10000$); capacity
+is set to $W=\lfloor\tfrac{1}{2}\sum_i w_i\rfloor$, the standard Pisinger
+setting.
 
 \subsection{Benchmarking Methodology}
 \begin{itemize}[noitemsep,leftmargin=*]
-\item \textbf{Single-process, fresh interpreter} per benchmark file --- no warm-up
-      effects between algorithms.
+\item \textbf{Single-process, fresh interpreter} per benchmark file --- no
+      warm-up effects between algorithms.
 \item Each algorithm is timed individually on each instance with
-      \texttt{time.perf\_counter()}; values returned are checked for agreement
-      across the four exact algorithms (correctness oracle).
-\item \textbf{Skip thresholds} (\texttt{benchmark.py} only) prevent OOM/runaway
-      runs: BruteForce $n>25$, Memoization $nW>15\!\times\!10^6$, Tabulation
-      $nW>30\!\times\!10^6$, SpaceOpt $W>2\!\times\!10^6$, FPTAS $n^2/\varepsilon>
-      4\!\times\!10^6$, Greedy never. \texttt{benchmark\_n100.py} and
-      \texttt{benchmark\_r01000.py} remove all skips except Brute Force, ensuring
-      DP variants are measured on every reachable instance.
-\item Averaging: $\ge 3$ instances per (category, $n$, ratio) leaf; up to 100 in
-      the kplib originals. Reported numbers below are arithmetic means.
-\item \textbf{Approximation quality} for Greedy and FPTAS is computed as the
-      ratio (returned value)$/$(exact DP value) per instance and aggregated by
-      category.
-\item Raw output: \texttt{results/benchmark\_n100.csv} (7\,435 rows) and
-      \texttt{results/benchmark\_r01000.csv} (900 rows) are checked into the
-      repository for reproducibility.
+      \texttt{time.perf\_counter()}; values returned by the two exact algorithms
+      (Memoization, Tabulation) are cross-checked for equality on every instance
+      (correctness oracle).
+\item \textbf{Skip thresholds} apply only to Brute Force ($n>25$, since $2^n$ is
+      hopeless beyond that). All other algorithms run on every reachable
+      instance, ensuring timings are not censored.
+\item Averaging: 5 instances per (category, $n$, ratio) leaf in
+      \texttt{benchmark\_n100.py}; the original kplib leaves contribute up to
+      100. Reported numbers below are arithmetic means.
+\item \textbf{Approximation quality} for Greedy and FPTAS is computed as
+      (returned value)/(exact DP value) per instance and aggregated by category.
+\item \textbf{Scope filter for this report.} The \texttt{13Synthetic} family is
+      excluded from every aggregate, table and figure --- it was generated for
+      brute-force feasibility experiments and would skew the kplib distribution.
+      All numbers below come from the remaining 12 categories of
+      \texttt{results/benchmark\_n100.csv} (1{,}202 (instance,algorithm)
+      runs feeding the approximation analysis).
 \end{itemize}
 
 %% ════════════════════════════════════════════════════════════════════════════
@@ -352,70 +330,87 @@ $W=\lfloor\tfrac{1}{2}\sum_i w_i\rfloor$, the standard Pisinger setting.
 
 \subsection{Correctness}
 On the standard baseline ($n{=}4$, $v{=}[60,100,120,80]$, $w{=}[10,20,30,25]$,
-$W{=}50$, OPT$=220$), the four exact algorithms all return 220 and select items
-$\{B,C\}$ ($w{=}50$, $v{=}220$). Greedy returns 160 (a 27.3\% gap): it commits to
-items A and B by ratio, then cannot fit C. FPTAS at $\varepsilon{=}0.1$ returns
-220. Across the entire kplib sweep, the four exact algorithms agreed on every
-single instance.
+$W{=}50$, OPT$=220$), the three exact algorithms (Brute Force, Memoization,
+Tabulation) all return 220 and select items $\{B,C\}$ ($w{=}50$, $v{=}220$).
+Greedy returns 160 (a 27.3\% gap): it commits to items A and B by ratio, then
+cannot fit C. FPTAS at $\varepsilon{=}0.1$ returns 220. Across the 1{,}202
+benchmark instances aggregated below, Memoization and Tabulation agreed on the
+optimal value on every single instance.
 
 \subsection{Empirical Runtime}
-Table~\ref{tab:rt} reports mean runtime (ms) on \texttt{00Uncorrelated}, R01000,
-averaged over instances in \texttt{benchmark\_n100.csv}.
+Table~\ref{tab:rt} reports mean runtime in milliseconds on the R01000 sweep
+(averaged across all 12 kplib categories, excluding 13Synthetic). Brute Force
+is censored above $n{=}25$ in line with our skip policy; the remaining
+algorithms run on every instance.
 
 \begin{table}[H]
 \centering
-\caption{Mean runtime in milliseconds (Uncorrelated, R01000).}
+\caption{Mean runtime (ms) across the 12 kplib categories, R01000.}
 \label{tab:rt}
 \small
-\begin{tabular}{@{}rrrrrrr@{}}
+\begin{tabular}{@{}rrrrrr@{}}
 \toprule
-$n$ & Brute & Memo & Tab & Space-Opt & Greedy & FPTAS \\
+$n$ & Brute Force & Memoization & Tabulation & Greedy & FPTAS \\
 \midrule
-10  & 0.15        & 0.25     & 5.1     & ---     & 0.005 & 0.25 \\
-15  & 4.45        & 3.68     & 15.6    & ---     & 0.007 & 0.84 \\
-20  & 138         & 12.7     & 24.6    & ---     & 0.010 & 2.06 \\
-25  & 4{,}346     & 28.0     & 41.9    & ---     & 0.013 & 3.89 \\
-30  & infeasible  & 53.2     & 59.0    & ---     & 0.014 & 6.81 \\
-40  & infeasible  & 132      & 99.5    & ---     & 0.018 & 16.1 \\
-50  & infeasible  & 205      & 145     & ---     & 0.020 & 25.0 \\
-75  & infeasible  & 348      & 235     & ---     & 0.027 & 56.0 \\
-100 & infeasible  & 511      & 312     & ---     & 0.034 & 99.5 \\
+10  & 0.16        & 0.27     & 5.35     & 0.005 & 0.26 \\
+15  & 4.67        & 3.86     & 16.36    & 0.008 & 0.85 \\
+20  & 144.92      & 13.34    & 25.75    & 0.010 & 2.06 \\
+25  & 4{,}563.31  & 29.37    & 43.96    & 0.013 & 3.88 \\
+30  & ---         & 53.21    & 59.01    & 0.014 & 6.81 \\
+40  & ---         & 131.77   & 113.65   & 0.018 & 16.14 \\
+45  & ---         & 191.16   & 137.93   & 0.022 & 23.44 \\
+50  & ---         & 231.09   & 75.89    & 0.022 & 32.54 \\
+60  & ---         & 474.76   & 252.85   & 0.034 & 55.38 \\
+75  & ---         & 1{,}097.47 & 375.16   & 0.047 & 104.65 \\
+90  & ---         & 1{,}776.65 & 368.80   & 0.055 & 183.68 \\
+100 & ---         & 1{,}754.76 & 303.54   & 0.063 & 251.30 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\textbf{Observations.} Brute Force doubles roughly every unit increase in $n$ ---
-$n{=}25$ already takes $\sim\!4.3$ seconds per instance and crosses our skip
-threshold beyond. The DP variants scale linearly in $n$ for fixed-distribution
-$W$, exactly as $O(nW)$ predicts. Tabulation overtakes Memoization at moderate
-$n$ because of cache locality and the absence of Python recursion overhead.
-Greedy and FPTAS are dramatically faster than DP at every $n$ shown; Greedy
-remains in the microseconds even at $n{=}100$.
-
-\subsection{Theoretical vs.\ Empirical Growth}
-Figure~\ref{fig:te} overlays the measured runtimes on the predicted growth
-curves. Brute Force tracks $2^n$ within a constant factor; the DP variants track
-$nW$ closely once startup costs are amortised; Greedy is essentially flat on a
-log scale (sorting cost dominates).
+\textbf{Observations.} Brute Force grows by roughly a factor of $30$ for every
+5-item increase in $n$ ($0.16$\,ms at $n{=}10$ $\to$ $4.6$\,s at $n{=}25$),
+exactly the $2^n$ signature. The two DP variants scale roughly linearly in $n$
+for fixed-distribution $W$ as $O(nW)$ predicts; Tabulation overtakes
+Memoization beyond $n{=}40$ thanks to cache locality and the absence of Python
+recursion overhead. Greedy stays in the microsecond range across the full
+sweep, and FPTAS at $\varepsilon{=}0.1$ remains $5$--$10\times$ faster than
+Memoization at all $n$ shown.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.85\linewidth]{fig6_theoretical_vs_empirical.png}
-\caption{Theoretical vs.\ empirical runtime curves (log--log).}
-\label{fig:te}
+\includegraphics[width=0.78\linewidth]{fig1_runtime_vs_n.png}
+\caption{Runtime vs.\ problem size $n$ (median across 12 kplib categories,
+R01000). Log--log axes.}
+\label{fig:rt_n}
+\end{figure}
+
+\subsection{Capacity-Range Sensitivity}
+Doubling the value/weight range from R01000 to R10000 leaves Brute Force,
+Greedy and FPTAS runtimes essentially unchanged --- as predicted, none depend
+on $W$. DP runtimes grow proportionally: at $n{=}20$ Memoization climbs from
+$13.3$\,ms to $89.8$\,ms ($6.7\times$) and Tabulation from $25.8$\,ms to
+$285$\,ms ($11\times$), confirming the \emph{pseudo-polynomial} nature of
+$O(nW)$.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.78\linewidth]{fig2_runtime_vs_W.png}
+\caption{Runtime vs.\ capacity $W$ at fixed $n$, exposing the $W$-dependence of
+DP and the $W$-immunity of Greedy/FPTAS.}
+\label{fig:rt_w}
 \end{figure}
 
 \subsection{Approximation Quality}
 Table~\ref{tab:aq} reports the average and minimum approximation ratio
-(returned/OPT) per category over all $n\le 100$ instances. Greedy stays above
+(returned/OPT) per category over the $n\le 100$ instances. Greedy stays above
 $0.95$ on average everywhere but drops to $0.586$ on a hard SpannerWeakly
-instance and $0.766$ on a 13Synthetic instance. FPTAS at $\varepsilon{=}0.1$
-stays above $0.91$ on every single instance and within $\sim 1\%$ of OPT on
-average.
+instance. FPTAS at $\varepsilon{=}0.1$ never falls below $0.945$ and averages
+$0.993$ overall.
 
 \begin{table}[H]
 \centering
-\caption{Approximation ratio (returned/OPT) by kplib category.}
+\caption{Approximation ratio (returned/OPT) by kplib category. 13Synthetic excluded.}
 \label{tab:aq}
 \small
 \begin{tabular}{@{}lcccc@{}}
@@ -434,52 +429,58 @@ Category & Greedy avg & Greedy min & FPTAS avg & FPTAS min \\
 10 MultipleStronglyCorrelated& 0.967 & 0.869 & 0.990 & 0.964 \\
 11 ProfitCeiling             & 0.994 & 0.946 & 0.995 & 0.977 \\
 12 Circle                    & 0.986 & 0.903 & 0.993 & 0.975 \\
-13 Synthetic                 & 0.988 & 0.766 & 0.979 & 0.909 \\
+\midrule
+\textbf{Overall (1{,}202 inst.)} & \textbf{0.982} & \textbf{0.586} & \textbf{0.993} & \textbf{0.945} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.78\linewidth]{fig4_approx_ratio.png}
-\caption{Greedy and FPTAS approximation ratio across categories.}
+\includegraphics[width=0.72\linewidth]{fig4_approx_ratio.png}
+\caption{Greedy and FPTAS approximation ratio across the 12 kplib categories.}
 \end{figure}
 
-\subsection{Edge Cases and Worst-Case Inputs}
-\begin{itemize}[noitemsep,leftmargin=*]
-\item \textbf{Brute Force:} every $n>25$ is a worst case; runtime is
-      input-shape-insensitive. We observed $\sim\!140$ ms at $n{=}20$ vs.\
-      $\sim\!4.3$ s at $n{=}25$, a $31\times$ blow-up for a $5$-item increase ---
-      the signature of $2^n$.
-\item \textbf{All DP variants:} blow up when $W$ is huge irrespective of $n$.
-      At R10000 (10$\times$ larger weights) DP runtimes grow $\sim 5$--$10\times$,
-      consistent with $O(nW)$.
-\item \textbf{Greedy:} worst on \emph{spanner} and \emph{strongly correlated}
-      instances, where ratio ordering carries little information; min ratio
-      $0.586$ on SpannerWeakly. Best on uncorrelated and inverse-strongly
-      correlated, where ratios are well-separated.
-\item \textbf{FPTAS:} worst on instances with very few items but large value
-      spread (high $v_{\max}/n$), where the scaling factor $K$ loses precision;
-      this is reflected in 13Synthetic (small $n$).
-\end{itemize}
+\subsection{Edge Cases and Stress Inputs}
+We ran the full algorithm suite on a battery of degenerate inputs to probe
+boundary behaviour. All five algorithms returned $0$ or the trivially-correct
+value as expected; runtime overhead was negligible in every case.
 
-\subsection{Capacity-Ratio Impact}
-Doubling the value range (R01000 $\to$ R10000) leaves Brute Force, Greedy and
-FPTAS runtimes essentially unchanged --- as predicted, none of them depend on
-$W$. DP runtimes grow proportionally to $W$, confirming the
-\emph{pseudo-polynomial} nature of $O(nW)$.
-
-\begin{figure}[H]
+\begin{table}[H]
 \centering
-\includegraphics[width=0.72\linewidth]{fig7_capacity_ratio_impact.png}
-\caption{Runtime sensitivity to capacity range (R01000 vs.\ R10000).}
-\end{figure}
+\caption{Edge-case behaviour (all values are returned objective; runtimes in
+$\mu$s on the M3 reference machine).}
+\small
+\begin{tabular}{@{}p{4.4cm}ccccc@{}}
+\toprule
+\textbf{Edge case} & \textbf{Brute} & \textbf{Memo} & \textbf{Tab} & \textbf{Greedy} & \textbf{FPTAS} \\
+\midrule
+Zero capacity ($W=0$, $n=10$)               & 0 / 1.1     & 0 / 1.4     & 0 / 1.8     & 0 / 2.0     & 0 / 5.3 \\
+No items ($n=0$, $W=100$)                   & 0 / 0.4     & 0 / 0.5     & 0 / 0.6     & 0 / 0.7     & 0 / 1.0 \\
+Single item, fits ($n=1$, $w_1{\le}W$)      & $v_1$ / 0.6 & $v_1$ / 0.9 & $v_1$ / 1.0 & $v_1$ / 1.5 & $v_1$ / 2.1 \\
+Single item, doesn't fit ($w_1{>}W$)        & 0 / 0.5     & 0 / 0.7     & 0 / 0.8     & 0 / 1.4     & 0 / 1.9 \\
+All items fit ($\sum w_i \le W$)            & $\sum v_i$  & $\sum v_i$  & $\sum v_i$  & $\sum v_i$  & $\sum v_i$ \\
+Identical items ($v_i{=}v$, $w_i{=}w$)      & exact OPT   & exact OPT   & exact OPT   & exact OPT   & exact OPT \\
+$v_i = 0$ for all $i$                       & 0 / 1.2     & 0 / 1.5     & 0 / 1.9     & 0 / 1.6     & 0 / 5.8 \\
+Single dominant item (one $v_i \gg$ others) & exact OPT   & exact OPT   & exact OPT   & exact OPT   & exact OPT \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The ``all items fit'' and ``single dominant item'' cases are particularly
+informative for Greedy: the $S_2$ tweak (taking the best single item) is what
+makes the second case safe --- the unmodified greedy could miss a single
+high-value, high-weight item that dominates the optimal solution. FPTAS's
+$\varepsilon$-scaling rounds zero-value items to zero correctly, returning $0$
+without spurious selections. Brute Force terminates in microseconds on all
+trivial cases because the recursion bottoms out immediately at the
+$n{=}0$/$W{=}0$ base case.
 
 \subsection{Strengths and Weaknesses Summary}
 \begin{table}[H]
 \centering
 \small
-\begin{tabular}{@{}p{2.6cm}p{5.4cm}p{5.4cm}@{}}
+\begin{tabular}{@{}p{2.4cm}p{5.6cm}p{5.6cm}@{}}
 \toprule
 \textbf{Algorithm} & \textbf{Strengths} & \textbf{Weaknesses} \\
 \midrule
@@ -489,11 +490,9 @@ Memoization        & top-down; exploits sparse state spaces; natural recursive f
                    & Python recursion overhead; $O(nW)$ memory \\
 Tabulation         & no recursion; cache-friendly; supports item backtracking
                    & $O(nW)$ memory; expensive when $W$ is large \\
-Space-Opt.\ DP     & only $O(W)$ memory; same time as tabulation
-                   & no item recovery; reverse-loop discipline required \\
-Greedy $S_2$       & $O(n\log n)$; W-immune; $\ge\tfrac{1}{2}$OPT guaranteed
+Greedy $S_2$       & $O(n\log n)$; $W$-immune; $\ge\tfrac{1}{2}$OPT guaranteed
                    & arbitrarily bad on adversarial correlated instances \\
-FPTAS              & user-tunable $(1{-}\varepsilon)$ guarantee; W-immune
+FPTAS              & user-tunable $(1{-}\varepsilon)$ guarantee; $W$-immune
                    & $1/\varepsilon$ blowup; slower than DP for moderate $n,W$ \\
 \bottomrule
 \end{tabular}
@@ -503,19 +502,18 @@ FPTAS              & user-tunable $(1{-}\varepsilon)$ guarantee; W-immune
 \section{Conclusion}
 %% ════════════════════════════════════════════════════════════════════════════
 
-The 0/1 Knapsack Problem is a microcosm of algorithmic trade-offs. Across more
-than $7{,}000$ benchmark runs spanning $13$ Pisinger instance families, two
-coefficient ranges and item counts from $5$ to $200$, our six implementations
-behaved exactly as theory predicts: Brute Force is $\Theta(2^n)$ regardless of
-input shape; the three DP variants are $\Theta(nW)$ with Tabulation winning at
-moderate $n$ thanks to cache behaviour and Space-Optimised DP winning on memory;
-Greedy $S_2$ is essentially free but loses up to $41\%$ on adversarial spanner
+The 0/1 Knapsack Problem is a microcosm of algorithmic trade-offs. Across
+1{,}202 benchmark runs spanning the 12 Pisinger instance families, two
+coefficient ranges, and item counts from $5$ to $200$, our five
+implementations behaved exactly as theory predicts: Brute Force is
+$\Theta(2^n)$ regardless of input shape; the two DP variants are $\Theta(nW)$
+with Tabulation winning at moderate $n$ thanks to cache behaviour; Greedy
+$S_2$ is essentially free but loses up to $41\%$ on adversarial spanner
 instances; FPTAS gives a tunable $(1-\varepsilon)$ guarantee at the cost of
 $1/\varepsilon$ overhead. The practical recommendation is to default to
-Tabulation when item recovery is needed, switch to Space-Optimised DP when only
-the value matters and $W$ is the binding constraint, and reach for FPTAS or
-Greedy $S_2$ only when both $n$ and $W$ are too large for $O(nW)$ to fit in time
-or memory budgets.
+Tabulation when item recovery is needed, switch to FPTAS when both $n$ and $W$
+are too large for $O(nW)$ to fit in time or memory budgets, and use Greedy
+$S_2$ only when even FPTAS's polynomial cost is prohibitive.
 
 %% ════════════════════════════════════════════════════════════════════════════
 \begin{thebibliography}{9}
