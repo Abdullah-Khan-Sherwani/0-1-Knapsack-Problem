@@ -291,14 +291,54 @@ artificially normalised.
 \subsection{Test-Case Strategy}
 We use the Pisinger \emph{kplib} benchmark suite~\cite{pisinger2003,kplib}, the
 de-facto standard for knapsack experimentation. Twelve correlation families are
-exercised: \textbf{Uncorrelated} ($w_i,v_i$ independent), \textbf{Weakly} and
-\textbf{Strongly Correlated} ($v_i \approx w_i + c$), \textbf{Inverse} and
-\textbf{Almost-Strongly Correlated}, \textbf{Subset Sum} ($v_i = w_i$), three
-\textbf{Spanner} variants, \textbf{Multiple Strongly Correlated},
-\textbf{Profit Ceiling}, and \textbf{Circle}. We benchmark over two coefficient
-ranges: \textbf{R01000} ($R{=}1000$) and \textbf{R10000} ($R{=}10000$); capacity
-is set to $W=\lfloor\tfrac{1}{2}\sum_i w_i\rfloor$, the standard Pisinger
-setting.
+exercised across two coefficient ranges, R01000 and R10000; capacity is always
+the Pisinger half-sum setting, which ensures roughly half the total weight must
+be left out and keeps the problem genuinely hard.
+
+\medskip\noindent
+\textbf{Uncorrelated} --- weights and values drawn independently, giving no
+exploitable structure; serves as a neutral baseline.
+\textbf{Weakly Correlated} --- values loosely track weights within a band,
+introducing partial density variation that Greedy can partially exploit.
+\textbf{Inverse Strongly Correlated} --- heavier items are always more
+valuable, so Greedy's preference for light items actively works against the
+optimal selection.
+\textbf{Almost Strongly Correlated} --- a near-degenerate variant of Strongly
+Correlated where densities are nearly identical, making any ranking unreliable.
+\textbf{Spanner} variants (Uncorrelated, Weakly, Strongly Correlated) ---
+instances built by scaling a small base set of items, producing clusters of
+items with identical density ratios and heavy ties throughout.
+\textbf{Multiple Strongly Correlated} --- items fall into two distinct profit
+tiers based on a divisibility rule, a two-level structure that DP resolves
+exactly but density heuristics tend to misclassify.
+\textbf{Profit Ceiling} --- values are quantised to multiples of a fixed
+divisor, forcing many items to share the same profit and stressing tie-breaking
+in both Greedy and DP.
+\textbf{Circle} --- weight--value pairs follow a geometric arc, producing a
+non-linear relationship that is opaque to density-based reasoning and yields
+consistently interesting optimal solutions.
+
+\paragraph{Subset Sum.}
+Every item has $v_i = w_i$, so all value-to-weight ratios are identical,
+collapsing Greedy's density ranking to an arbitrary ordering with no signal to
+exploit. The exact DP methods are unaffected, as they explore the full weight
+space regardless of value structure. Empirically Greedy performs surprisingly
+well on average here --- with uniform density the greedy packing tends to fill
+capacity close to optimally by chance --- but its minimum ratio across instances
+is noticeably lower than on structured families, revealing the occasional
+ordering where the arbitrary ranking causes a meaningful loss.
+
+\paragraph{Strongly Correlated.}
+Every item's value exceeds its weight by the same fixed constant, so heavier
+items always carry more absolute value even though lighter items appear to have
+better density. Greedy is systematically biased toward light items, and this
+bias is exploitable: whenever the optimal solution requires a heavy item that
+leaves too little remaining capacity for the lighter items Greedy would prefer,
+Greedy commits to the wrong set. This is empirically the hardest family for
+Greedy among the first six categories, producing the worst average approximation
+ratio and the lowest minimum. FPTAS is unaffected in quality --- its guarantee
+is independent of correlation structure --- while DP resolves the problem
+exactly at the usual pseudo-polynomial cost.
 
 \subsection{Benchmarking Methodology}
 \begin{itemize}[noitemsep,leftmargin=*]
@@ -442,39 +482,17 @@ Category & Greedy avg & Greedy min & FPTAS avg & FPTAS min \\
 \end{figure}
 
 \subsection{Edge Cases and Stress Inputs}
-We ran the full algorithm suite on a battery of degenerate inputs to probe
-boundary behaviour. All five algorithms returned $0$ or the trivially-correct
-value as expected; runtime overhead was negligible in every case.
+We tested all five algorithms on the following degenerate inputs: zero capacity
+($W=0$), no items ($n=0$), a single item that fits or does not fit, all items
+fitting within capacity, identical items, all-zero values, and a single
+dominant item ($v_j \gg$ all others).
 
-\begin{table}[H]
-\centering
-\caption{Edge-case behaviour (all values are returned objective; runtimes in
-$\mu$s on the M3 reference machine).}
-\small
-\begin{tabular}{@{}p{4.4cm}ccccc@{}}
-\toprule
-\textbf{Edge case} & \textbf{Brute} & \textbf{Memo} & \textbf{Tab} & \textbf{Greedy} & \textbf{FPTAS} \\
-\midrule
-Zero capacity ($W=0$, $n=10$)               & 0 / 1.1     & 0 / 1.4     & 0 / 1.8     & 0 / 2.0     & 0 / 5.3 \\
-No items ($n=0$, $W=100$)                   & 0 / 0.4     & 0 / 0.5     & 0 / 0.6     & 0 / 0.7     & 0 / 1.0 \\
-Single item, fits ($n=1$, $w_1{\le}W$)      & $v_1$ / 0.6 & $v_1$ / 0.9 & $v_1$ / 1.0 & $v_1$ / 1.5 & $v_1$ / 2.1 \\
-Single item, doesn't fit ($w_1{>}W$)        & 0 / 0.5     & 0 / 0.7     & 0 / 0.8     & 0 / 1.4     & 0 / 1.9 \\
-All items fit ($\sum w_i \le W$)            & $\sum v_i$  & $\sum v_i$  & $\sum v_i$  & $\sum v_i$  & $\sum v_i$ \\
-Identical items ($v_i{=}v$, $w_i{=}w$)      & exact OPT   & exact OPT   & exact OPT   & exact OPT   & exact OPT \\
-$v_i = 0$ for all $i$                       & 0 / 1.2     & 0 / 1.5     & 0 / 1.9     & 0 / 1.6     & 0 / 5.8 \\
-Single dominant item (one $v_i \gg$ others) & exact OPT   & exact OPT   & exact OPT   & exact OPT   & exact OPT \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The ``all items fit'' and ``single dominant item'' cases are particularly
-informative for Greedy: the $S_2$ tweak (taking the best single item) is what
-makes the second case safe --- the unmodified greedy could miss a single
-high-value, high-weight item that dominates the optimal solution. FPTAS's
-$\varepsilon$-scaling rounds zero-value items to zero correctly, returning $0$
-without spurious selections. Brute Force terminates in microseconds on all
-trivial cases because the recursion bottoms out immediately at the
-$n{=}0$/$W{=}0$ base case.
+All algorithms returned the correct value in every case. The only noteworthy
+behaviour was with Greedy on the single dominant item: without the $S_2$
+correction, a greedy pass would skip the heavy high-value item entirely and
+return a suboptimal result. The correction fixes this by always considering the
+best single item as a candidate solution. FPTAS also handled the all-zero-value
+case cleanly, making no spurious selections.
 
 \subsection{Strengths and Weaknesses Summary}
 \begin{table}[H]
@@ -493,7 +511,7 @@ Tabulation         & no recursion; cache-friendly; supports item backtracking
 Greedy $S_2$       & $O(n\log n)$; $W$-immune; $\ge\tfrac{1}{2}$OPT guaranteed
                    & arbitrarily bad on adversarial correlated instances \\
 FPTAS              & user-tunable $(1{-}\varepsilon)$ guarantee; $W$-immune
-                   & $1/\varepsilon$ blowup; slower than DP for moderate $n,W$ \\
+                   & $1/\varepsilon$ blowup \\
 \bottomrule
 \end{tabular}
 \end{table}
